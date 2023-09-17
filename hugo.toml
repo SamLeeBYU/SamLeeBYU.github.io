@@ -1,0 +1,4 @@
+baseURL = 'https://SamLeeBYU.github.io'
+languageCode = 'en-us'
+title = 'Sam Lee'
+theme = 'hugo-tranquilpeak-theme'
