@@ -543,7 +543,7 @@ def checkPayment():
 <li>I convert the date column into two separate date columns: one that stores the day of the year, and the other that stores the time of day that the citation was given.</li>
 </ol>
 <p>One important thing to note here is the way I save the pandas data frame to the csv file: For efficiency purposes, it is better to append the data to any existing data (as opposed to just overwriting the file each time).</p>
-<p>I also overwrite the <code>DATA</code> variable (by setting it equal to None) after each time I save it to the file. This is another way to improve efficiency if you are scraping a potentially large data set&ndash;that way Python won&rsquo;t waste computer resources by concatenating data to a potentially large <code>DATA</code> variable that&rsquo;s already saved to an external data file.</p>
+<p>I also overwrite the <code>DATA</code> variable (by setting it equal to an empty data frame&ndash;<code>pd.DataFrame()</code>) after each time I save it to the file. This is another way to improve efficiency if you are scraping a potentially large data set&ndash;that way Python won&rsquo;t waste computer resources by concatenating data to a potentially large <code>DATA</code> variable that&rsquo;s already saved to an external data file.</p>
 <pre tabindex="0"><code>DATA = pd.DataFrame()
 def save_data(data, save=False):
     global DATA
@@ -555,17 +555,17 @@ def save_data(data, save=False):
     if save:
         #Clean the data before saving it to the file
         DATA[&#34;Officer&#34;] = DATA[&#34;Citation&#34;].apply(lambda x: re.search(r&#39;P(\d)&#39;, x).group(1))
-        DATA[&#34;Fine&#34;] = DATA[&#34;Fine&#34;].apply(lambda x: float(x.replace(&#39;$&#39;, &#39;&#39;).replace(&#39;,&#39;, &#39;&#39;)))
+        DATA[&#34;Fine&#34;] = DATA[&#34;Fine&#34;].apply(lambda x: float(x.replace(&#39;$&#39;, &#39;&#39;).replace(&#39;,&#39;, &#39;&#39;)) if isinstance(x, str) else x)
         DATA[&#34;Residence&#34;] = DATA[&#34;License Plate/Vin&#34;].str.split().str[0]
-        DATA[&#34;IssuedDate&#34;]=pd.to_datetime(DATA[&#34;Issued&#34;]).dt.strftime(&#39;%Y-%m-%d&#39;)
-        DATA[&#34;IssuedTime&#34;]=pd.to_datetime(DATA[&#34;Issued&#34;]).dt.strftime(&#39;%I:%M %p&#39;)
+        DATA[&#34;IssuedDate&#34;] = pd.to_datetime(DATA[&#34;Issued&#34;], format=&#39;%b %d, %Y %I:%M %p&#39;).dt.strftime(&#39;%Y-%m-%d&#39;)
+        DATA[&#34;IssuedTime&#34;] = pd.to_datetime(DATA[&#34;Issued&#34;], format=&#39;%b %d, %Y %I:%M %p&#39;).dt.strftime(&#39;%I:%M %p&#39;)
         
         if os.path.exists(&#34;ParkingCitations.csv&#34;):
             DATA.to_csv(&#34;ParkingCitations.csv&#34;, mode=&#39;a&#39;, index=False, header=False)
         else:
             DATA.to_csv(&#34;ParkingCitations.csv&#34;, index=False)
             
-        DATA = None
+        DATA = pd.DataFrame()
 </code></pre><p>We will then save the <code>DATA</code> periodically. This can be done really whenever, but I decided a good time to save the data frame is after every time we finish scraping all the possible citation combinations in each officer number.</p>
 <p>Thus we can modify the <code>main_loop()</code> like this:</p>
 <pre tabindex="0"><code>def main_loop(self):
@@ -706,6 +706,28 @@ def flag(self, change):
 <li>The thread is joined (stopped) only after the data has been attempted to be scraped. If the timer reaches 10 seconds before the data is scraped, then <code>flag</code> will be set to true, the while loop will finish and the iteration will proceed to finish as well.</li>
 <li>If <code>flag</code> is true (meaning that the timer finished before the data could load or be scraped), we need to first and foremost reset the <code>flag</code> property to false so it can be ready for the next iteration, but then secondly, we can repeat the citation number again to get another attempt at scraping the data.</li>
 </ol>
+<p>While this script will run and work well for generally all cases, we can add one more error-catching statement that will ensure we get all citations that aren&rsquo;t able to be loaded:</p>
+<p>Adding a <code>try-except</code> statement to the code above, we have:</p>
+<pre tabindex="0"><code>try:
+    self.send_keys({&#34;officer&#34;: i, &#34;index&#34;: j})
+    
+    #Store the data in the RAM
+    #Save it to a file when it is the last index
+    #i.e. save it to a file when we are done scraping each officer&#39;s citations
+    scraped_data = self.get_data()
+    if not scraped_data.empty:
+        save_data(scraped_data, save = j == len(self.index)-1)
+    else:
+        print(&#34;No data&#34;)
+    self._citation_loaded = True
+except Exception as e:
+    now = datetime.datetime.now()
+    index = &#34;0&#34;*(5-len(str(j)))+str(j)
+    key = f&#34;P{i}-{index}&#34;
+    error_message = f&#34;{now}: {str(e)};\nThere was an error sending the keys or scraping the data: {key}&#34;
+    with open(&#34;errors.txt&#34;, &#34;a&#34;) as f:
+        f.write(error_message + &#34;\n\n&#34;)
+</code></pre><p>This will log any citation that is not captured and handled by the <code>measure_time</code> thread to a text file and then just proceed with the rest of the program. After the program is done scraping, we can come back and look specifically at what citations failed to scrape in the <code>errors.txt</code> file. If it&rsquo;s neglible, we might not need to run the scraper for those citations left on the margin.</p>
 <h2 id="conclusion">Conclusion</h2>
 <p>The scraper is complete and ready to be ran. I hope this was helpful for those of you who followed along. I hope you learned some guiding principles as you venture on to go on to build your own sraping projects. This is a basic model that certainly worked for the project that I was working on, but the truth is every website is built different and you will have to learn how to adjust to their unique style and dynamics. Again, all the code is posted on my Github <a href="https://github.com/SamLeeBYU/BYUTrafficCitations">here</a>.</p>
 <h4 id="optional-diagnostic-information">Optional Diagnostic Information</h4>
