@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="Everyday Statistics">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="/img/selenium/selenium_code.png">
+    <meta property="twitter:image" content="/img/selenium/selenium_code.png" />
+    
+
+    
+    <meta name="title" content="Web Scraping Using Selenium: Best Practices and Example" />
+    <meta property="og:title" content="Web Scraping Using Selenium: Best Practices and Example" />
+    <meta property="twitter:title" content="Web Scraping Using Selenium: Best Practices and Example" />
+    
+
+    
+    <meta name="description" content="A basic model to understand what you need to know about reliably scraping data that&#39;s on dynamically integrated websites using Selenium">
+    <meta property="og:description" content="A basic model to understand what you need to know about reliably scraping data that&#39;s on dynamically integrated websites using Selenium" />
+    <meta property="twitter:description" content="A basic model to understand what you need to know about reliably scraping data that&#39;s on dynamically integrated websites using Selenium" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="Sam Lee, BYU, Sam Lee Statistics, Blog, Personal Website, Bayesian, Econometrics, R, Python, Data Science">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Web Scraping Using Selenium: Best Practices and Example | Sam Lee | Everyday Statistics</title>
+
+    <link rel="canonical" href="/2023/09/29/selenium-best-practices/">
+
+    
+    
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hugo-theme-cleanwhite.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link rel="stylesheet" href="/css/font-awesome.all.min.css">
+
+    
+    
+
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    <script src="/js/lazysizes.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Everyday Statistics</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">All Posts</a>
+                    </li>
+                    
+                        
+                    
+                    
+		    
+                        <li><a href="/archive//">ARCHIVE</a></li>
+                    
+                        <li><a href="/about//">ABOUT</a></li>
+                    
+		            <li>
+                        <a href="/search"><i class="fa fa-search"></i></a>
+		           </li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/selenium/selenium_code.png')
+    }
+</style>
+
+<header class="intro-header" >
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        <a class="tag" href="/tags/web-scraping" title="web scraping">
+                            web scraping
+                        </a>
+                        
+                        <a class="tag" href="/tags/tutorial" title="tutorial">
+                            tutorial
+                        </a>
+                        
+                    </div>
+                    <h1>Web Scraping Using Selenium: Best Practices and Example</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        
+                            Posted by 
+                            
+                                    Sam Lee
+                             
+                            on 
+                            Friday, September 29, 2023
+                            
+                            
+                            
+                            
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <h2 id="introduction-for-those-new-to-selenium">Introduction (For Those New to Selenium)</h2>
+<p>Throughout my research experience, I have been often charged with scraping large data sets that only exist as embedded through a government portal or as partially accessible through passing through or entering form information. Through BeautifulSoup (which is a great library for sifting through the HTML text itself), and the requests library, static sites (such as Wikipedia) can be scraped quite easily, but the former examples present more of a challenge. In fact, most of the time we want data that is protected through dynamic integration.</p>
+<p>Most websites load their data dynamically. This means that after the user sends a requests to the server and the page responds by sending the initial HTML, CSS, and JS to the browser, after a series of callbacks, the server will then load in the data that&rsquo;s stored through JSON files (or elsewhere on the server) once the server has established that the user is actually present on the page. Sometimes this manifests itself through form elements. Every time you enter a query in a search bar on website looking for some data that they have (we will look at an example here in a moment), most of the time they didn&rsquo;t load that data in all at once when you sent your first request (i.e. first loaded the site), otherwise, the website would probably take a lot longer to load. As a result, they load the data in dynamically; this means that they will often only give you the data that you need in the moment you need it, not all at once.</p>
+<p>Static webscraping is an all-at-once approach. It assumes all the data has been loaded with the first request. This is often not the case. Those who have tried scraping a dynamically integrated websites might know what I mean. They can visibily see the data on the webpage when they&rsquo;re viewing it as a normal user, but when they try to load in the respective HTML, the data they expect to be there isn&rsquo;t! Often they are left with empty HTML skeleton.</p>
+<p>Selenium provides us with the solution. Selenium artifically creates a &ldquo;user&rdquo;, it can automate user actions, thus sending actual requests to the server, and force the server to send back the data we want. From there we can load in the HTML data and parse it using BeautifulSoup or however we want.</p>
+<p>In this tutorial I will walk through the code used for a basic model that I used to scrape through the traffic citations database stored on the BYU server.</p>
+<p>(Though the example is particularly directed towards BYU students, the structure and syntax of the example can be applied anywhere)</p>
+<p>All code is posted in this on my Github <a href="https://github.com/SamLeeBYU/BYUTrafficCitations">here</a>.</p>
+<p>Through my experiences of trial and error and much headache of not being able to figure out why my code isn&rsquo;t working, and by watching countless tutorials myself, I want to make this tutorial to demonstrate the best way I found to go about scraping data. Though there is never one correct way to solve a problem, I believe there are more efficient ways. In this tutorial I will demonstrate the pitfalls to avoid and the reasons I have structured my code the way I have.</p>
+<h2 id="setting-up-selenium">Setting up Selenium</h2>
+<p>This tutorial assumes that you are generally comfortable with coding and running Python programs. I won&rsquo;t go explicitily into the details of setting up the Selenium driver (that&rsquo;s not necessarily the purpose of this tutorial), as there are couple different ways. If you have trouble setting up your driver, I recommend watching this <a href="https://www.youtube.com/watch?v=WnWQgUerR0c">tutorial</a>.</p>
+<p>I will be using Chrome and the Chrome webdriver for this example, though any differences are neglible if you use Firefox.</p>
+<p>The Selenium webdriver relies on an external program to automate its processes. This acts as the &ldquo;user.&rdquo; Through this webdriver (which is essentially a browser that we can send commands to through Python), we will be able to send requests to the server and interact with the HTML elements.</p>
+<p>Here&rsquo;s the general process of how to set up the Selenium driver:</p>
+<ol>
+<li>
+<p>Download/extract the driver that is compatible with your browser.
+If you are using Chrome, you can download the ChromeDrivers <a href="https://chromedriver.chromium.org/downloads">here</a>.</p>
+</li>
+<li>
+<p>Install and load in the following python modules in your code:</p>
+</li>
+</ol>
+<pre tabindex="0"><code>#import selenium libraries
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+</code></pre><ol start="3">
+<li>In your code, initialize the driver:</li>
+</ol>
+<pre tabindex="0"><code>PATH = &#34;Driver\chromedriver.exe&#34;
+
+def selenium_driver():
+    
+    service = Service(PATH)
+
+    options = Options()
+    driver = webdriver.Chrome(service=service, options=options)
+    return driver
+</code></pre><p>NOTE: The most recent version of Selenium requires you to pass in a Service() object just as I defined above. Before you could have just passed in the PATH to your driver.</p>
+<p>Right now I am using the default options, but the options can be configured to always open up in a certain way: i.e. in a certain language or in a certain sized window.</p>
+<p>If this is the python file that you are running (either directly or from the terminal), we can initialize the driver object when the program is run:</p>
+<pre tabindex="0"><code>#Create the chrome driver that can be referred to globally
+driver = None
+
+if __name__ == &#34;__main__&#34;:
+    driver = selenium_driver()
+</code></pre><p>It is important that you declare the driver variable outisde of your methods so it can be referred to any instance or method.</p>
+<p>NOTE: Alternatively, if you cannot find a compatible chromedriver that matches with your version of Chrome, Selenium built a module that will install and do that for you:</p>
+<pre tabindex="0"><code>from webdriver_manager.chrome import ChromeDriverManager
+
+#Alternative to installing a driver manually
+def selenium_driver():
+    
+    service = Service(ChromeDriverManager().install())
+
+    options = Options()
+    driver = webdriver.Chrome(service=service), options=options)
+    return driver
+</code></pre><p>This can be a little bit finicky though if not all the permissions to install and delete files are met by the python file inside certain folders in your hard drive.</p>
+<p>If Selenium is installed and your chromedriver is set up correctly, with the code above typed up in <code>main.py</code> for example, running <code>python main.py</code> in the terminal will store a webdriver instance to our globally declared driver variable. We will use this driver object throughout the scraper process. This will be the object that is uniquely responsible for interacting directly with the chromedriver and our code.</p>
+<p>Nothing will really happen when you run this code because we haven&rsquo;t asked our driver or code to do anything. Let&rsquo;s change that.</p>
+<h2 id="the-problem-defining-the-parameters">The Problem: Defining the Parameters</h2>
+<p>In this applied example I will be demonstrating how to set up a scraper that will reliably scrape the traffic citations that BYU administers to students that alledgedly violate its parking and traffic code.</p>
+<p>BYU allows anyone with BYU credentials to access any BYU citation through its citation portal availble at this link: <a href="https://cars.byu.edu/citations">https://cars.byu.edu/citations</a>. This tutorial is geared towards BYU students to follow along which is why I chose to use this example; however, all principles and applications discussed in this tutorial can be applied elsewhere, to similar sites that embed their data through a portal.</p>
+<p>Our script will be entering citation number combinations into this field and scraping the data if the query yields anything.</p>
+<p>
+  <img src="/img/selenium/citation_field.png" alt="CitationField">
+
+</p>
+<p>Here is an example:</p>
+<p>
+  <img src="/img/selenium/example_citation.png" alt="CitationExample">
+
+</p>
+<p>This is a citation that I received in August, though the License Plate number and citation number have been modified for privacy purposes. That is my actual fine though!</p>
+<p>We will be able to scrape actual license plate numbers, but we won&rsquo;t be able to link any identities with these records alone.</p>
+<h4 id="approaching-the-problem">Approaching the Problem</h4>
+<p>When I say we need to define the parameters of the problem, we need to map out how we are going to create this program.</p>
+<ol>
+<li>We need a script that can loop through all possible combinations of citation numbers in order extract the entire listed data base of traffic citations.</li>
+<li>Once a query yields (or doesn&rsquo;t yield&ndash;we need to check for this) information, we need to parse the newly appeared HTML data and format it appropriately (this is the actual data scraping process). This often involves some data cleaning, inevitably.</li>
+<li>We need a way to efficiently store the data that we are parsing so the data doesn&rsquo;t get lost from one query to the next. Saving data to an external database or file after each scrape (which may be okay for smaller sized tasks like this one) often take up a lot of unnecessary CPU; we can reduce the number of times our program has to do this.</li>
+<li>Error catching. We need our program to handle edge cases. Sometimes a citation might not yield any data. Or sometimes the data might be incomplete. Our scraper needs to be able to handle these issues with ease. Typically when want to scrape data, we want to run our scraper and then come back to it within a day (or sometimes longer!) after it has finished scraping all the data. Our program needs to be reliable. Advanced topics in webscraping include running parallel instances of our scraper, to reduce the total runtime. I won&rsquo;t get into that in this tutorial.</li>
+</ol>
+<h2 id="creating-the-scaper-class">Creating the <code>Scaper()</code> Class</h2>
+<p>In this tutorial, I will be using object-orient programming (OOP). I found that this is the most efficient way to organize code for webscraping (and just coding in Python in general). This is what Python excels best at.</p>
+<p>For this tutorial I will also be using the following libraries:</p>
+<pre tabindex="0"><code>import pandas as pd
+import threading
+import time
+import re
+import os
+</code></pre><p>We will first create a <code>Scraper</code> class that will essentially be the robot to our program. It will be able to keep track of where we are in the program and it will contain the methods and properties needed to actually scrape the data.</p>
+<pre tabindex="0"><code>class Scraper():
+    def __init__(self, url):
+        #Define the url to scrape
+        self._url = url
+        
+        #Define parameters of loop
+        self.officers = range(1, 10+1)
+        self.index = range(1, 99999+1)
+</code></pre><p>Our <code>Scraper</code> class will take a url as an argument and we will pass in <a href="https://cars.byu.edu/citations">https://cars.byu.edu/citations</a> to it.</p>
+<p>In order to be able to loop through every possible combination of citation number, we have created indexes for officers (1-10) and all possible five-digit combinations (excluding 00000). This will all depend on your problem of interest, for us we need to create citation numbers that look like <code>P#-#####</code>. Through some trial and error, I have determined that the first number (for now) can only be a number (1-10)&ndash;this could be this officer number, if my suspicions are correct&ndash;and the other five digit #s are interestingly enough in sequential order from the time the citation was given. However, even if the citation numbers weren&rsquo;t conveniently ordered sequentially, we could still find all possible combinations given that all citations are in that same format.</p>
+<h4 id="loading-the-page">Loading the Page</h4>
+<pre tabindex="0"><code>def go(self):
+    driver.get(self._url)
+</code></pre><p>This is a simple method that our <code>Scraper</code> class will have. It will use our globally defined driver object to simply go the url we request it to go to.</p>
+<p>We can now update <code>main.py</code>:</p>
+<pre tabindex="0"><code>if __name__ == &#34;__main__&#34;:
+    driver = selenium_driver()
+
+    scraper = Scraper(&#34;https://cars.byu.edu/citations/&#34;)
+    scraper.go()
+
+    user_input = input(&#34;Are you logged in yet? (y/n): &#34;).rstrip().upper()
+
+    while user_input != &#34;Y&#34;:
+        print(&#34;Waiting for user to log in...&#34;)
+        input(&#34;Press any key to continue...&#34;)
+        user_input = input(&#34;Are you logged in yet? (y/n): &#34;).rstrip().upper()
+</code></pre><p>Since <a href="https://cars.byu.edu/citations/">https://cars.byu.edu/citations/</a> requires BYU credentials, we will have manually log in on the first run. This can be automated with APIs, but I won&rsquo;t get into that in this tutorial.</p>
+<p>Another reason why I wanted to use this example is to show you how even sites that require a login can just as easily be scraped&ndash;this wouldn&rsquo;t be possible with traditional static scraping methods.</p>
+<p>If you run <code>main.py</code>, (and you&rsquo;re following along), BYU will ask you to log in:</p>
+<p>
+  <img src="/img/selenium/byu_credentials.png" alt="BYUCredentials">
+
+</p>
+<p>The Python program will stall on that login page until you tell it (through the input) that you&rsquo;re logged in. From there, we proceed to access the site like a normal user and send commands to the driver from our Python script.</p>
+<h4 id="defining-the-main-loop">Defining the Main Loop</h4>
+<p>Now we are going to directly address #1 in <code>Approaching the Problem</code>. We need to define a loop (or series of loops) that will sequentially or strategically loop through all the possible combinations of citation numbers and insert them into the search bar and proceed with the rest of the program.</p>
+<p><strong>Best Practice</strong>: Rather than defining a series of recursive functions (unless your program is small or your methods are meant to be ran only a select number of times), it best to define the main sequence of your program using a series of loops to collect the data. Not only is the most efficient, this will save you from recursion errors and help you organize your code more.</p>
+<p>When we initially load the page we will need to identify the search bar before we can actually send information. Here is our first taste of using Selenium to interact with the website:</p>
+<pre tabindex="0"><code>@staticmethod
+def find_citation():
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, &#34;v-btn__content&#34;))
+    )
+    find_citation_btn = driver.find_elements(By.CLASS_NAME, &#34;v-btn__content&#34;)[0]
+    find_citation_btn.click()
+</code></pre><p>Since Python is a sequential programming language, lines of code will be executed within milliseconds. That means as soon as the page is loaded and we call this function, the search bar might not be &ldquo;there&rdquo; if not all the elements on the page have loaded.</p>
+<p><strong>Best Practice</strong>: The Selenium library has a module called <code>expected_conditions</code> which you may have saw as one of the modules you imported. This allows us to control for certain conditions that we &ldquo;expect&rdquo; (hence the name) to occur before we proceed with our code. If you want to make sure an element or series of elements are interactable, I found that waiting until the element is clickable (as I have demonstrated) is a very reliable expected condition to wait for before trying to interact with it.</p>
+<p>Once we find the element we can go ahead and find the first element that has that class name and click it.</p>
+<h4 id="how-did-i-know-that-was-the-correct-element">How did I know that was the correct element?</h4>
+<p>
+  <img src="/img/selenium/search_bar.png" alt="SearchBarDOM">
+
+</p>
+<p>Simply put, I inspected the DOM (ctrl+shift+j on Chrome) and used the interactive tool to see where the &ldquo;Find Citation&rdquo; was. It looks like it was consistently listed under the <code>v-btn__content</code> class (classes are denoted with a &lsquo;.&rsquo;).</p>
+<p>We will define the <code>main_loop</code> method inside the <code>Scraper</code> class:</p>
+<pre tabindex="0"><code>def main_loop(self):
+        self.go()
+        self.find_citation()
+        for i in self.officers:
+            j = 0
+            while j &lt; len(self.index):
+                j += 1
+
+        print(&#34;Finished scraping all the data.&#34;)
+</code></pre><p>This will ensure that all possible combinations are scraped through. I will exmplain in a bit why I chose to use a while loop and manually increase the jth index as opposed to a for loop here in a bit, but essentially it will come in handy if we ever want to &ldquo;go back in time&rdquo; to another or different index.</p>
+<p>We can call the <code>main_loop()</code> from <code>main.py</code>:</p>
+<pre tabindex="0"><code>if __name__ == &#34;__main__&#34;:
+    driver = selenium_driver()
+
+    scraper = Scraper(&#34;https://cars.byu.edu/citations/&#34;)
+    scraper.go()
+
+    user_input = input(&#34;Are you logged in yet? (y/n): &#34;).rstrip().upper()
+
+    while user_input != &#34;Y&#34;:
+        print(&#34;Waiting for user to log in...&#34;)
+        input(&#34;Press any key to continue...&#34;)
+        user_input = input(&#34;Are you logged in yet? (y/n): &#34;).rstrip().upper()
+
+    scraper.main_loop()
+</code></pre><p>Great! Now our scraper can click a button, but it can&rsquo;t do much else.</p>
+<h4 id="send-keys-to-the-search-bar">Send Keys to the Search Bar</h4>
+<p>We now need to send information to the search bar and see if the query returns any information.</p>
+<p>We will define a <code>send_keys()</code> method like this:</p>
+<pre tabindex="0"><code>@staticmethod
+def send_keys(data={&#34;officer&#34;: 1, &#34;index&#34;: 0}):
+    index = &#34;0&#34;*(5-len(str(data[&#34;index&#34;])))+str(data[&#34;index&#34;])
+    key = f&#34;P{data[&#39;officer&#39;]}-{index}&#34;
+    #print(key)
+    
+    #Search the key into the search bar
+    
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, &#34;.v-text-field__slot input&#34;))
+    )
+    input_field = driver.find_elements(By.CSS_SELECTOR, &#34;.v-text-field__slot input&#34;)[0]
+    driver.execute_script(&#34;arguments[0].value = &#39;&#39;;&#34;, input_field)
+    input_field.send_keys(key)
+    
+    #Search the citation
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, &#34;.v-input__append-inner button&#34;))
+    )
+    search_btn = driver.find_elements(By.CSS_SELECTOR, &#34;.v-input__append-inner button&#34;)[0]
+    search_btn.click()
+</code></pre><p>Sometimes dynamically loaded websites will spoof the identifiers of their web elements. This makes it harder to consistently identify.</p>
+<p>One solution is to use an XPATH identifier as opposed to a CSS identifier. Another solution is to find the unique combination of nested HTML tags and target that. This is what I do here.</p>
+<p>For example: if I know the link I want to target is always the first link in the p tags of every div that can be identified with a positional or classical identifier, then I can identify the &lt;a&gt; tag even if the &lt;a&gt; isn&rsquo;t explicitly identifiable through other identifiers.</p>
+<p>Here&rsquo;s code a little broken down:</p>
+<ol>
+<li>Formats the ith and jth index into a citation number <code>P#-#####</code>.</li>
+<li>Waits for the search bar to be identifiable, finds it, clears it if there&rsquo;s any existing text in it, and then sends the citation number (key) to the search bar. On a side note <code>driver.execute_script()</code> is literally executing JS code in the browser, which is what I think is one of the neatest things about Selenium.</li>
+<li>Waits for the search button to be clickable before interacting with it and then clicks it.</li>
+</ol>
+<p>In all honesty, the hardest part about this code is understanding the CSS selectors, which deserves another post on its own.</p>
+<p><strong>Best Practice</strong>: The best way to find the elements you&rsquo;re looking for is to actually go into the browser and sift through the HTML yourself. Test out this JavaScript code: <code>document.querySelectorAll(&quot;.v-input__append-inner button&quot;)</code> (for example) to see if what you think identifies the element actually does. What will identify the element in JS will also identy the element in Selenium using a CSS selector. I also recommend using the debug mode on VSCode and try running <code>driver.find_elements(By.CSS_SELECTOR, &quot;.v-input__append-inner button&quot;)[0]</code> in the debug console (for example) by putting a breakpoint at that line and seeing if your CSS selector (or other identifier) is what&rsquo;s causing the problem.</p>
+<h2 id="scraping-the-data">Scraping the Data</h2>
+<p>This is the bulkiest part of the script. This is the part that will actually take the information that the query returned and parse it own into comprehendable information.</p>
+<p>The biggest difficulty with this task is dealing with cases where no data is returned. It&rsquo;d be great if every citation returned data. But we need to test for this.</p>
+<p>These are our functions:</p>
+<pre tabindex="0"><code>def get_data(self):
+    citation_data = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .col&#34;)
+    no_data_text = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .text-center h4&#34;)
+    while not and len(citation_data) &lt; 1 and len(no_data_text) &lt; 1:
+        citation_data = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .col&#34;)
+        no_data_text = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .text-center h4&#34;)
+        time.sleep(0.1)
+    
+    if len(no_data_text) &gt;= 1:
+        return pd.DataFrame()
+    else:
+        #Now we need to parse the data into a pandas data frame
+        
+        #Additional information about the citation if it exists and whether or not they paid the ticket
+        additionalInfo = self.checkPayment()
+        
+        return pd.concat([self.format_text([el.text for el in citation_data]), additionalInfo], axis=1)
+
+@staticmethod
+def format_text(text_arr):
+    #Takes the text data and returns a formatted pandas frame
+    cols = [x.split(&#34;:&#34;)[0] for x in text_arr]
+    data = [x.split(&#34;:&#34;, 1)[1].strip() if &#34;:&#34; in x else x.strip() for x in text_arr]
+    
+    row = pd.DataFrame(data, cols).transpose()
+    return row
+</code></pre><p>
+  <img src="/img/selenium/no_data.png" alt="NoDataScreen">
+
+</p>
+<p>This is essentially the error we are trying to digest. Instead of using Selenium&rsquo;s <code>expected_conditions</code> module, we create our own wait time method with a while loop. The logic works like this:</p>
+<ol>
+<li>Check to see if the citation data has loaded (data to be found in <code>.v-card__text .col</code>). If nothing is returned, it either is still loading or there is no data to be found for that citation.</li>
+<li>Check to see if the header tag that holds the text &ldquo;No Citation Found&rdquo; has been identified (as it would appear in the picture above). Similarly, if there is nothing returned, it either hasn&rsquo;t been loaded yet, or there actually is data for the citation.</li>
+<li>Only one of those selectors has to return data for the program to proceed. I don&rsquo;t use <code>expected_conditions</code> because the loop I&rsquo;m currently running is simply faster. If ran a wait on either the <code>citation_data</code> or <code>no_data_text</code> I would have to set a fixed amount of time for the data to appear (or for &ldquo;No Citation Found&rdquo;) to appear and even then, it wouldn&rsquo;t guarantee for either of those variables to contain data. Using this method guaruntees that one of those will contain data. It does warn that the loop could take forever if the Selenium driver encounters an error such that neither of the conditions we check for become false. We will solve for this shortly hereafter.</li>
+<li>If there is data, we simply get the text in all the columns (formatted in an array) and pass it into our <code>format_text</code> method that returns a nicely formatted pandas table. This is what we want. This is essentially the inputs to outputs of any scraper.</li>
+</ol>
+<p>Applied Example:</p>
+<pre tabindex="0"><code>[el.text for el in citation_data]
+-&gt; [&#39;Citation:\nP1-00000&#39;, &#39;License Plate/Vin:\nUT XXX123&#39;, &#39;Fine:\n$20&#39;, &#39;Issued:\nJun 01, 2010 01:28 PM&#39;]
+
+#In self.format_text(text_arr) method
+[x.split(&#34;:&#34;)[0] for x in text_arr]
+-&gt; [&#39;Citation&#39;, &#39;License Plate/Vin&#39;, &#39;Fine&#39;, &#39;Issued&#39;]
+
+[x.split(&#34;:&#34;, 1)[1].strip() if &#34;:&#34; in x else x.strip() for x in text_arr]
+-&gt; [&#39;P1-00000&#39;, &#39;UT XXX123&#39;, &#39;$20&#39;, &#39;Jun 01, 2010 01:28 PM&#39;]
+
+row = pd.DataFrame(data, cols).transpose()
+-&gt;   Citation License Plate/Vin Fine                 Issued
+0  P1-00000         UT XXX123  $20  Jun 01, 2010 01:28 PM
+</code></pre><p>Here is another function that scrapes additional information (used in the <code>get_data()</code> method):</p>
+<pre tabindex="0"><code>@staticmethod
+def checkPayment():
+    #Check to see if the payment is available
+    #We can assume that the buttons to appeal and pay have loaded when the citation has loaded so we don&#39;t need to load again
+    buttons = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .text-center button&#34;)
+    
+    citationInfo = {&#34;CitationText&#34;: None,
+                    &#34;Unpaid&#34;: False}
+    if len(buttons) &gt; 0:
+        if len(buttons) &gt; 1:
+            citationInfo = {&#34;CitationText&#34;: buttons[0].text,
+                            &#34;Unpaid&#34;: True}
+        elif len(buttons) == 0:
+            #We have to determine what kind of information is left to be scraped
+            if &#34;APPEAL&#34; in buttons[0].text.upper():
+                citationInfo = {&#34;CitationText&#34;: buttons[0].text,
+                                &#34;Unpaid&#34;: False}
+            elif &#34;PAY&#34; in buttons[0].text.upper():
+                citationInfo = {&#34;CitationText&#34;: None,
+                                &#34;Unpaid&#34;: True}
+    #Two columns to be merged with the row that scrapes the general information
+    return pd.DataFrame.from_dict(citationInfo, orient=&#39;index&#39;).T
+</code></pre><p>
+  <img src="/img/selenium/pay_now.png" alt="PaymentButton">
+
+</p>
+<p>I won&rsquo;t dissect the logic of the <code>checkPayment()</code> function too much (this function is completely optional, it just adds more information to our data frame), but essentially it is checking to see if the citation is payable and it is parsing the text of the citation button. This is just additional information that can be merged with the rest of the information.</p>
+<p>Now we can update our <code>main_loop</code> function:</p>
+<pre tabindex="0"><code>def main_loop(self):
+    self.go()
+    self.find_citation()
+    for i in self.officers:
+        j = 0
+        while j &lt; len(self.index):
+            self.send_keys({&#34;officer&#34;: i, &#34;index&#34;: j})
+            
+            #Store the data in the RAM
+            #Save it to a file when it is the last index
+
+            scraped_data = self.get_data()
+            self._citation_loaded = True
+
+            j += 1
+</code></pre><p>In our updates we:</p>
+<ol>
+<li>Sent keys to the search bar and ran the query with the current ith and jth index.</li>
+<li>Scraped the data (if there was any)</li>
+</ol>
+<p>Now that we scraped the data we need to efficiently store the data.</p>
+<h2 id="storing--saving-the-scraped-data">Storing &amp; Saving the Scraped Data</h2>
+<p>In this stage of the process we will need to transfer the scraped data after each iteration to some other place. We could store it in an external file, and we will eventually do this, however, performing external file operations every single iteration is costly from a computer resource perspective. We can make the code more efficient by only saving the data to an external file only when we have to. Until that time, we can save the scraped data to a place in the RAM (temporary memory).</p>
+<p>We will initialize a global data frame called <code>DATA</code>. Through this variable we will store all appendages of our scraped data.</p>
+<p>We will create a function called <code>save_data()</code> that can be called from the <code>main_loop()</code>. This function will be in charge of adding the scraped data to the <code>DATA</code> as well as saving the data set to an external file when <code>save</code> = True.</p>
+<p><strong>Optional</strong>: Additionally, before I save the data set to the external file, I perform some pandas operations on the data set to clean it up a bit:</p>
+<ol>
+<li>I extract the officer number from the citation number</li>
+<li>I convert the &ldquo;Fine&rdquo; column into numerical data</li>
+<li>I convert the date column into two separate date columns: one that stores the day of the year, and the other that stores the time of day that the citation was given.</li>
+</ol>
+<p>One important thing to note here is the way I save the pandas data frame to the csv file: For efficiency purposes, it is better to append the data to any existing data (as opposed to just overwriting the file each time).</p>
+<p>I also overwrite the <code>DATA</code> variable (by setting it equal to None) after each time I save it to the file. This is another way to improve efficiency if you are scraping a potentially large data set&ndash;that way Python won&rsquo;t waste computer resources by concatenating data to a potentially large <code>DATA</code> variable that&rsquo;s already saved to an external data file.</p>
+<pre tabindex="0"><code>DATA = pd.DataFrame()
+def save_data(data, save=False):
+    global DATA
+    if DATA.empty:
+        DATA = data
+    else:
+        DATA = pd.concat([DATA, data]).reset_index(drop=True)
+    
+    if save:
+        #Clean the data before saving it to the file
+        DATA[&#34;Officer&#34;] = DATA[&#34;Citation&#34;].apply(lambda x: re.search(r&#39;P(\d)&#39;, x).group(1))
+        DATA[&#34;Fine&#34;] = DATA[&#34;Fine&#34;].apply(lambda x: float(x.replace(&#39;$&#39;, &#39;&#39;).replace(&#39;,&#39;, &#39;&#39;)))
+        DATA[&#34;Residence&#34;] = DATA[&#34;License Plate/Vin&#34;].str.split().str[0]
+        DATA[&#34;IssuedDate&#34;]=pd.to_datetime(DATA[&#34;Issued&#34;]).dt.strftime(&#39;%Y-%m-%d&#39;)
+        DATA[&#34;IssuedTime&#34;]=pd.to_datetime(DATA[&#34;Issued&#34;]).dt.strftime(&#39;%I:%M %p&#39;)
+        
+        if os.path.exists(&#34;ParkingCitations.csv&#34;):
+            DATA.to_csv(&#34;ParkingCitations.csv&#34;, mode=&#39;a&#39;, index=False, header=False)
+        else:
+            DATA.to_csv(&#34;ParkingCitations.csv&#34;, index=False)
+            
+        DATA = None
+</code></pre><p>We will then save the <code>DATA</code> periodically. This can be done really whenever, but I decided a good time to save the data frame is after every time we finish scraping all the possible citation combinations in each officer number.</p>
+<p>Thus we can modify the <code>main_loop()</code> like this:</p>
+<pre tabindex="0"><code>def main_loop(self):
+    self.go()
+    self.find_citation()
+    for i in self.officers:
+        j = 0
+        while j &lt; len(self.index):
+
+            self.send_keys({&#34;officer&#34;: i, &#34;index&#34;: j})
+            
+            #Store the data in the RAM
+            #Save it to a file when it is the last index
+            #i.e. save it to a file when we are done scraping each officer&#39;s citations
+
+            scraped_data = self.get_data()
+
+            if not scraped_data.empty:
+                save_data(scraped_data, save = j == len(self.index)-1)
+            else:
+                print(&#34;No data&#34;)
+
+            print(&#34;Most recent data scraped:&#34;)
+            print(DATA.tail(5))
+
+            j += 1
+</code></pre><p>I added some diagnostic information in there as well to show the five most recently scraped citations after each iteration.</p>
+<h2 id="checking-for-no-data-revisted-threads">Checking for No Data Revisted: Threads</h2>
+<p>We will now return to the potential issue that occurred in <code>get_data()</code>. Earlier when we created a customized wait method using a while loop that essentially waited until either &ldquo;No Citation Found&rdquo; or until actual data was found we discovered that this while loop could possibly wait forever.</p>
+<p><strong>Solution</strong>: We can create an asynchronous timer that will run outside of <code>Scraper()</code>. This timer will essentially given us a threshold to say whether the data is taking too long to load. If the data is taking too long to load we can signal back to the scraper object to try and query up the query again&ndash;sometimes this is a Selenium error. Threads allow us to control for these abnormal stops in the driver.</p>
+<p>Here is the function that we will run using the <code>threading</code> library:</p>
+<pre tabindex="0"><code>def measure_time(start_time, s, threshold=10.1):
+    counting = True
+    while counting and not s.citation_loaded:
+        current = time.perf_counter() - start_time
+        if current &gt;= threshold:
+            counting = False
+            s.flag = True
+        time.sleep(0.1)
+</code></pre><p>This function starts counting until 10 once it is called. If the thread is not stopped before the 10 seconds is up, then it will signal back to the scraper object (argument <code>s</code>&ndash;that&rsquo;s the benefit of OOP, that we can refer back to the same object even when it&rsquo;s passed through a function) that the scraper failed to query up data (or no data) within an adequate period of time (10 seconds in our case)</p>
+<p>NOTE: <code>time.sleep(0.1)</code> is there to conserve computer resources; the timer will only update every 100 ms.</p>
+<p>I refer to some properties of <code>Scraper()</code> in <code>measure_time</code> that I haven&rsquo;t quite yet define, so let&rsquo;s do that:</p>
+<pre tabindex="0"><code>class Scraper():
+    
+    def __init__(self, url):
+        #Define the url to scrape
+        self._url = url
+        
+        #Some properties that will help us see if the citation has been found
+        self._citation_loaded = False
+        self._flag = False
+        
+        #Define parameters of loop
+        self.officers = range(1, 10+1)
+        self.index = range(1, 99999+1)
+</code></pre><p>Now some getters and setters that can be referenced from <code>measure_time</code></p>
+<pre tabindex="0"><code>@property
+def citation_loaded(self):
+    return self._citation_loaded
+
+@property
+def flag(self):
+    return self._flag
+
+@flag.setter
+def flag(self, change):
+    self._flag = change
+</code></pre><p>Thus, if <code>measure time</code> triggers the <code>flag</code> property of the scraper, we need the while loop to stop.</p>
+<p>We can easily modify the <code>get_data()</code> method by including <code>self.flag</code> as a conditional in the while loop:</p>
+<pre tabindex="0"><code>def get_data(self):
+    citation_data = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .col&#34;)
+    no_data_text = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .text-center h4&#34;)
+    while not self.flag and len(citation_data) &lt; 1 and len(no_data_text) &lt; 1:
+        citation_data = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .col&#34;)
+        no_data_text = driver.find_elements(By.CSS_SELECTOR, &#34;.v-card__text .text-center h4&#34;)
+        time.sleep(0.1)
+    
+    if len(no_data_text) &gt;= 1:
+        return pd.DataFrame()
+    else:
+        #Now we need to parse the data into a pandas data frame
+        
+        #Additional information about the citation if it exists and whether or not they paid the ticket
+        additionalInfo = self.checkPayment()
+        
+        return pd.concat([self.format_text([el.text for el in citation_data]), additionalInfo], axis=1)
+</code></pre><h4 id="implementing-the-thread-in-the-main-loop">Implementing the Thread in the Main Loop</h4>
+<p>Now that the structure and logic of <code>measure_time</code> is established in <code>Scraper()</code>, we need to actually create the thread in our <code>main_loop</code>:</p>
+<pre tabindex="0"><code>def main_loop(self):
+    self.go()
+    self.find_citation()
+    for i in self.officers:
+        j = 0
+        while j &lt; len(self.index):
+            self._citation_loaded = False
+
+            #Time how long it takes to scrape each citation
+            start_time = time.perf_counter()
+
+            # Create and start the thread for measuring time
+            time_thread = threading.Thread(target=measure_time, args=(start_time,self))
+            time_thread.start()
+
+            self.send_keys({&#34;officer&#34;: i, &#34;index&#34;: j})
+            
+            #Store the data in the RAM
+            #Save it to a file when it is the last index
+            #i.e. save it to a file when we are done scraping each officer&#39;s citations
+            scraped_data = self.get_data()
+            if not scraped_data.empty:
+                save_data(scraped_data, save = j == len(self.index)-1)
+            else:
+                print(&#34;No data&#34;)
+            self._citation_loaded = True
+
+            #Join the current thread
+            time_thread.join()
+            print(f&#34;Execution time: {time.perf_counter()-start_time:.6f}\n&#34;)
+
+            print(&#34;Most recent data scraped:&#34;)
+            print(DATA.tail(5))
+
+            #Reset the flag:
+            if self._flag:
+                #This property can only be set true by the measure_time thread
+                j -= 1
+                self._flag = False
+
+            #Generally increase the jth index after each iteration
+            j += 1
+
+    print(&#34;Finished scraping all the data.&#34;)
+</code></pre><p>Here&rsquo;s the updates that occurred:</p>
+<ol>
+<li><code>self._citation_loaded = False</code> resets the initial condition of <code>citation.loaded</code> that&rsquo;s referenced in <code>measure_time</code>. We are communicating that at the start of each iteration that the citation is presumed to not be loaded.</li>
+<li>We created a <code>threading</code> object named <code>time_thread</code> that runs <code>measure_time</code>. It takes the current time as the starting time argument.</li>
+<li><code>time_thread.start()</code> starts running the 10 second timer as defined in <code>measure_time</code></li>
+<li>The thread is joined (stopped) only after the data has been attempted to be scraped. If the timer reaches 10 seconds before the data is scraped, then <code>flag</code> will be set to true, the while loop will finish and the iteration will proceed to finish as well.</li>
+<li>If <code>flag</code> is true (meaning that the timer finished before the data could load or be scraped), we need to first and foremost reset the <code>flag</code> property to false so it can be ready for the next iteration, but then secondly, we can repeat the citation number again to get another attempt at scraping the data.</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>The scraper is complete and ready to be ran. I hope this was helpful for those of you who followed along. I hope you learned some guiding principles as you venture on to go on to build your own sraping projects. This is a basic model that certainly worked for the project that I was working on, but the truth is every website is built different and you will have to learn how to adjust to their unique style and dynamics. Again, all the code is posted on my Github <a href="https://github.com/SamLeeBYU/BYUTrafficCitations">here</a>.</p>
+<h4 id="optional-diagnostic-information">Optional Diagnostic Information</h4>
+<p>When I am running my scrapers, especially scrapers that run for hours on end, I typically like to time to see how long it&rsquo;s been running.</p>
+<p>Here&rsquo;s some code to time the scraper and output that diagnostic information for every 10 iterations:</p>
+<p>Add the following line of code to the <code>__init__()</code> function in the <code>Scraper()</code>:</p>
+<pre tabindex="0"><code>#Starting time
+self.start_time = time.perf_counter()
+</code></pre><p>(Within the <code>Scraper()</code> class)</p>
+<pre tabindex="0"><code>def calculateTime(self):
+    self.end_time = time.perf_counter()
+    total_seconds = self.end_time - self.start_time
+
+    hours = total_seconds // 3600
+    remaining_seconds = total_seconds % 3600
+    minutes = remaining_seconds // 60
+    seconds = remaining_seconds % 60
+
+    print(f&#34;\nTotal seconds elapsed: {total_seconds:.4f}&#34;)
+    print(f&#34;That&#39;s {hours} hours, {minutes} minutes, and {seconds:.4f} seconds.\n&#34;)
+
+    return total_seconds
+</code></pre><p>Within the <code>main_loop</code>:</p>
+<pre tabindex="0"><code>if j % 10 == 0:
+    self.calculateTime()
+</code></pre>
+
+                
+
+                
+
+                
+
+
+
+            </div>
+
+            
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">                  
+                    
+                    <li>
+                        <a href="mailto:samlee.byu@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
+                    
+                    
+                    
+                    
+
+		            
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/SamLeeBYU">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		            
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://www.linkedin.com/in/SamLeeBYU">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
+                    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+           
+             </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; Everyday Statistics 2023
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite">CleanWhite Hugo Theme</a> by <a href="https://zhaohuabing.com">Huabing</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=zhaohuabing&repo=hugo-theme-cleanwhite&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function loadAsync(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        loadAsync("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    loadAsync("https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        
+        
+        
+        
+            _containerSelector = 'div.post-container'
+        
+
+        
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        
+        $(selector).html('')
+
+        
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    
+
+
+    loadAsync("\/js\/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+</body>
+</html>
