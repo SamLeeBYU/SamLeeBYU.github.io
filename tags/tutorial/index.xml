@@ -13,7 +13,10 @@
       <pubDate>Fri, 29 Sep 2023 00:00:00 +0000</pubDate>
       
       <guid>https://SamLeeBYU.github.io/2023/09/29/selenium-best-practices/</guid>
-      <description>Introduction (For Those New to Selenium) Throughout my research experience, I have been often charged with scraping large data sets that only exist as embedded through a government portal or as partially accessible through passing through or entering form information. Through BeautifulSoup (which is a great library for sifting through the HTML text itself), and the requests library, static sites (such as Wikipedia) can be scraped quite easily, but the former examples present more of a challenge.</description>
+      <description>Introduction In this tutorial I will walk through the code used for a basic model that I used to scrape through the traffic citations database stored on the BYU server.
+(Though the example is particularly directed towards BYU students, the structure and syntax of the example can be applied anywhere)
+All code is posted in this on my Github here.
+Through my experiences of trial and error and much headache of not being able to figure out why my code isn&amp;rsquo;t working, and by watching countless tutorials myself, I want to make this tutorial to demonstrate the best way I found to go about scraping data.</description>
     </item>
     
   </channel>
