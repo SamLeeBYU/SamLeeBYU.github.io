@@ -6,7 +6,18 @@
     <description>Recent content in Data Science on Everyday Statistics</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 12 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/data-science/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 16 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/data-science/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>University Traffic Fines: Trends in Weather &amp; Air Quality - EDA</title>
+      <link>https://SamLeeBYU.github.io/2023/12/16/byu-traffic-citations-eda/</link>
+      <pubDate>Sat, 16 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/2023/12/16/byu-traffic-citations-eda/</guid>
+      <description>This project is part of a two-post series. See the first post here
+All code and progress for this project is kept up to date at https://github.com/SamLeeBYU/BYUTrafficCitations.
+Introduction Both private and public universities across the United Sates typically have university-specific parking service to enforce university parking regulations due to limited parking space supply. For the purposes of this analysis, we will analyze traffic citation data specific to my university, Brigham Young University.</description>
+    </item>
+    
     <item>
       <title>Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices</title>
       <link>https://SamLeeBYU.github.io/2023/12/12/covid-mortality-effect-on-housing/</link>
@@ -17,13 +28,13 @@
     </item>
     
     <item>
-      <title>University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection</title>
+      <title>University Traffic Fines: Trends in Weather &amp; Air Quality - Data Collection</title>
       <link>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</link>
       <pubDate>Mon, 13 Nov 2023 00:00:00 +0000</pubDate>
       
       <guid>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</guid>
-      <description>Introduction Both private and public universities across the United Sates typically have university-specific parking service to enforce university parking regulations due to limited parking space supply. For the purposes of this analysis, we will analyze traffic citation data specific to my university, Brigham Young University.
-The purpose behind this analysis will be to see if we can trace out any signal behind the relationship of number of traffic citations given on a particular day and effects in weather and air quality.</description>
+      <description>All code and progress for this project is kept up to date at https://github.com/SamLeeBYU/BYUTrafficCitations.
+Introduction The idea for this project sparked when I received yet another parking citation from BYU during the spring semester of 2023. It wasn&amp;rsquo;t until I went to pay the citation where I realized BYU&amp;rsquo;s citation database [1] was scrapable. Though BYU hides certain citation-specific details for privacy purposes, the general information of every citation scraped is available for anyone with BYU credentials: Notable information such as the time of a citation, plate/vin number, and fine amount could all be parsed by iterating through a combination of citation numbers.</description>
     </item>
     
   </channel>

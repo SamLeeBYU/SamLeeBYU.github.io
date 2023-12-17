@@ -15,9 +15,9 @@
     
 
     
-    <meta name="title" content="University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection" />
-    <meta property="og:title" content="University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection" />
-    <meta property="twitter:title" content="University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection" />
+    <meta name="title" content="University Traffic Fines: Trends in Weather &amp; Air Quality - Data Collection" />
+    <meta property="og:title" content="University Traffic Fines: Trends in Weather &amp; Air Quality - Data Collection" />
+    <meta property="twitter:title" content="University Traffic Fines: Trends in Weather &amp; Air Quality - Data Collection" />
     
 
     
@@ -34,7 +34,7 @@
     <meta name="keyword"  content="Sam Lee, BYU, Sam Lee Statistics, Blog, Personal Website, Bayesian, Econometrics, R, Python, Data Science">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection | Sam Lee | Everyday Statistics</title>
+    <title>University Traffic Fines: Trends in Weather &amp; Air Quality - Data Collection | Sam Lee | Everyday Statistics</title>
 
     <link rel="canonical" href="/2023/11/13/byu-traffic-citations/">
 
@@ -181,7 +181,7 @@
                         </a>
                         
                     </div>
-                    <h1>University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection</h1>
+                    <h1>University Traffic Fines: Trends in Weather &amp; Air Quality - Data Collection</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         
@@ -216,15 +216,10 @@
                 post-container">
 
                 
-                <h2 id="introduction">Introduction</h2>
-<p>Both private and public universities across the United Sates typically have university-specific parking service to enforce university parking regulations due to limited parking space supply. For the purposes of this analysis, we will analyze traffic citation data specific to my university, Brigham Young University.</p>
-<p>The purpose behind this analysis will be to see if we can trace out any signal behind the relationship of number of traffic citations given on a particular day and effects in weather and air quality. We hypothesize that when adjusted for confounding effects such as changes in enrollment, seasonality, type of day (whether the day is a holiday), day of week, and trends in time, we can isolate the effect of all influential factors that affect trends in traffic citations given at BYU.</p>
-<p>We hypothesize that changes in weather patterns change the incentives of students&rsquo; choices in transportation choice <em>as well as</em> incentives for BYU&rsquo;s parking enforcement task force. We make the assumption that incentives for students&rsquo; choices in transportation are more inelastic in regards to changes in weather as opposed to incentives for BYU&rsquo;s parking enforcement task force.</p>
-<p>If this theory holds then through regression analysis, we hope to show that increase in negative weather effects will significantly decrease the amount of traffic citations distributed on a particular day.</p>
-<p>If incentives for students&rsquo; choices in transportation are indeed more inelastic than the incentives for parking police at BYU with respect to changes in weather and air quality, then this provides convincing evidence that as trends in weather and air quality become more severe, weather factors become a greater indicator of changes in parking demand than parking citations.</p>
-<p>All code and progress for this project is kept up to date at <a href="https://github.com/SamLeeBYU/BYUTrafficCitations">https://github.com/SamLeeBYU/BYUTrafficCitations</a>.</p>
-<h2 id="problem-and-motivation">Problem and Motivation</h2>
+                <p>All code and progress for this project is kept up to date at <a href="https://github.com/SamLeeBYU/BYUTrafficCitations">https://github.com/SamLeeBYU/BYUTrafficCitations</a>.</p>
+<h2 id="introduction">Introduction</h2>
 <p>The idea for this project sparked when I received yet another parking citation from BYU during the spring semester of 2023. It wasn&rsquo;t until I went to pay the citation where I realized BYU&rsquo;s citation database [1] was scrapable. Though BYU hides certain citation-specific details for privacy purposes, the general information of every citation scraped is available for anyone with BYU credentials: Notable information such as the time of a citation, plate/vin number, and fine amount could all be parsed by iterating through a combination of citation numbers. Through a process which I explain thoroughly <a href="https://samleebyu.github.io/2023/09/29/selenium-best-practices/">here</a>, I scraped the traffic citations going back to July 2012 to present (October 2023 at the time of scraping).</p>
+<h2 id="problem-and-motivation">Problem and Motivation</h2>
 <p>Upon looking at the aggregate daily trends in the number of daily fines over time, I realized that there seemed to be explainable trends in the data&ndash;it was more than just a random walk. Surely the number of students who are obligated to go to campus on any given day of the week influenced the large fluctuations in number of tickets given out&ndash;things like enrollment, whether the day was a holiday or if was a day during final exams, what day of the week it was, or just the general trend in enrollment over time&ndash;could explain the long-run fluctuations. However, I wanted to know if the short-run fluctuations could be explained. I wanted to know if changes from day to day or week to week depended on the incentives of students&rsquo; transportation choices in the midst of weather and air quality effects. On the contrary, were the small fluctuations I was seeing from day to day and week to week just simply due to random error?</p>
 <h2 id="data-collection">Data Collection</h2>
 <p>To investigate these questions, I needed to merge the traffic citations data I scraped to past enrollment data and other data that controls for changes in long-run shifts. In addition, I needed to curate historical weather data and historical air quality data for each day and merge that with the traffic citations data as well.</p>
@@ -595,6 +590,10 @@ for table in tables:
                         
                         
                         
+                        
+                        <a href="/tags/eda" title="eda">
+                            eda
+                        </a>
                         
                         
                         
