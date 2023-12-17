@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="Everyday Statistics">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="/img/covid/covid.jpg">
+    <meta property="twitter:image" content="/img/covid/covid.jpg" />
+    
+
+    
+    <meta name="title" content="Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices" />
+    <meta property="og:title" content="Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices" />
+    <meta property="twitter:title" content="Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices" />
+    
+
+    
+    <meta name="description" content="An econometric analysis to determine what effect county-level per-capita COVID-19 mortality rates in 2020 had on housing prices in 2021">
+    <meta property="og:description" content="An econometric analysis to determine what effect county-level per-capita COVID-19 mortality rates in 2020 had on housing prices in 2021" />
+    <meta property="twitter:description" content="An econometric analysis to determine what effect county-level per-capita COVID-19 mortality rates in 2020 had on housing prices in 2021" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="Sam Lee, BYU, Sam Lee Statistics, Blog, Personal Website, Bayesian, Econometrics, R, Python, Data Science">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices | Sam Lee | Everyday Statistics</title>
+
+    <link rel="canonical" href="/2023/12/12/covid-mortality-effect-on-housing/">
+
+    
+    
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hugo-theme-cleanwhite.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link rel="stylesheet" href="/css/font-awesome.all.min.css">
+
+    
+    
+
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    <script src="/js/lazysizes.min.js"></script>
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
+    
+    <script src="https://SamLeeBYU.github.io/js/latex.js"></script>
+    
+
+</head>
+
+
+
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Everyday Statistics</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">All Posts</a>
+                    </li>
+                    
+                        
+                    
+                    
+		    
+                        <li><a href="/archive//">ARCHIVE</a></li>
+                    
+                        <li><a href="/about//">ABOUT</a></li>
+                    
+		            <li>
+                        <a href="/search"><i class="fa fa-search"></i></a>
+		           </li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/covid/covid.jpg')
+    }
+</style>
+
+<header class="intro-header" >
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/econometrics" title="Econometrics">
+                            Econometrics
+                        </a>
+                        
+                        <a class="tag" href="/tags/causal-inference" title="Causal Inference">
+                            Causal Inference
+                        </a>
+                        
+                        <a class="tag" href="/tags/stata" title="STATA">
+                            STATA
+                        </a>
+                        
+                        <a class="tag" href="/tags/data-science" title="Data Science">
+                            Data Science
+                        </a>
+                        
+                    </div>
+                    <h1>Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        
+                            Posted by 
+                            
+                                    Sam Lee
+                             
+                            on 
+                            Tuesday, December 12, 2023
+                            
+                            
+                            
+                            
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <h2 id="introduction">Introduction</h2>
+<p>In this analysis I seek to estimate the causal effect that 2020 COVID-19
+mortality rates had on per-county housing prices in the United States in
+2021. According to elementary economic theory, all else equal, when
+consumers of a good leave a market, demand decreases. This implies that
+prices decrease at every quantity demanded (Law of Demand). This theory
+may be grimly applied when we analyze COVID-19 mortality deaths from
+2020. According to the Law of Demand, all else equal, we would assume
+that on average, housing prices would decrease given the decrease in the
+number of consumers in the housing market per county. Not only can this
+be empirically tested using econometric methods, but additionally, this
+could provide compelling evidence for why providing early care for
+COVID-related illnesses may have real economic benefits and impacts in
+external markets.</p>
+<h2 id="data">Data</h2>
+<p>To estimate the effect that 2020 COVID-19 mortality rates had on
+per-county housing prices in 2021, I merged per-county COVID-19
+mortality rates with the per-county housing prices. Per-county COVID-19
+mortality rates was obtained from NYT’s public database (
+<a href="https://github.com/nytimes/covid-19-data">https://github.com/nytimes/covid-19-data</a>). The
+<a href="https://github.com/SamLeeBYU/CovidMortality/blob/main/Data/us-counties-2020.csv">us-counties-2020.csv</a>
+data set contains the fips code for each county and the corresponding
+death count. This was merged with data from the U.S. Census Bureau
+(<a href="https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html">https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html</a>)
+to obtain the 2020 population totals for each county (see
+<a href="https://github.com/SamLeeBYU/CovidMortality/blob/main/Data/co-est2022-pop.xlsx">co-est2022-pop.xlsx</a>).
+Mortality rate was then calculated as the death count for each county
+divided by the population for each county multiplied by 1000 (deaths per
+1,000). This data set also contains the state for each county record,
+which will later be used to control for.</p>
+<p>NOTE: Due to the jurisdiction of large cities such as Kansas City and
+New York City, and other cities that cross county boundaries and count
+COVID deaths differently than other counties, city-specific COVID deaths
+for some cities are often denoted by the city-jurisdiction as opposed to
+being disaggregated by the counties within. Notwithstanding the housing
+prices that are certain to vary within these jurisdictions, this made it
+difficult to match COVID-19 mortality for these jurisdictions and
+per-county housing. As a result, these records were dropped.</p>
+<p>I then merged per-county housing prices to with the mortality data. To
+do this, I used zip-level housing price data (see
+<a href="https://github.com/SamLeeBYU/CovidMortality/blob/main/Data/HPI_AT_BDL_ZIP3.xlsx">HPI_AT_BDL_ZIP3.xlsx</a>)
+maintained by the Federal Finance Housing Agency (FHFA)
+(<a href="https://www.fhfa.gov/DataTools/Downloads/Pages/House-Price-Index-Datasets.aspx">https://www.fhfa.gov/DataTools/Downloads/Pages/House-Price-Index-Datasets.aspx</a>)
+and merged it with data that mapped zip-codes in 2021 to the
+corresponding counties. I used HUD’s ZIP-County Crosswalk
+<a href="https://www.huduser.gov/portal/dataset/uspszip-api.html">API</a> to obtain
+the zip codes that correspond to each county. The Python script,
+<a href="https://github.com/SamLeeBYU/CovidMortality/blob/main/Scripts/zip-county.py">zip-county.py</a>,
+uses this API to compile
+<a href="https://github.com/SamLeeBYU/CovidMortality/blob/main/Data/zip-county.csv">zip-county.csv</a>.
+After combining these two data sets, the housing prices was condensed to
+create an average HPI (housing price index) for each county consisting
+of the HPIs from each zip code in each county. For the purposes of this
+analysis, to control for inflation, the HPI that’s been adjusted for
+inflation using 2000 year as a base year was used instead of raw HPI.
+From here on out in this analysis, HPI will be used to refer to as this
+HPI that’s been adjusted for inflation using 2000 as the base year.</p>
+<p>Additionally, $6$ lag variables on the 2021 HPI were constructed using
+The housing prices data. (See <a href="#a1">A.1</a> for the selection process for
+the number of lag variables).</p>
+<p>Merging the housing prices data set with the mortality data set yields
+the final data set for the econometric analysis: The response variable
+$\text{HPI}<em>{2021}$ will be measured on the independent metric of
+interest, $\text{Mortality Rate}$ for each county, and this will be
+controlled for using a series of state dummy variables and the $6$ lag
+variables on $\text{HPI}</em>{2021}$. This data set yielded a sample size =
+3113 counties with $n = 50$ states.</p>
+<h4 id="exploratory-data-analysis">Exploratory Data Analysis</h4>
+<p>Summary Statistics of Key Numeric Variables:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Variable</th>
+<th style="text-align:right">Mean</th>
+<th style="text-align:right">Median</th>
+<th style="text-align:right">SD</th>
+<th style="text-align:right">Min</th>
+<th style="text-align:right">Max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">HPI 2015</td>
+<td style="text-align:right">140.88</td>
+<td style="text-align:right">136.14</td>
+<td style="text-align:right">24.76</td>
+<td style="text-align:right">85.82</td>
+<td style="text-align:right">348.52</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2016</td>
+<td style="text-align:right">145.87</td>
+<td style="text-align:right">140.07</td>
+<td style="text-align:right">25.17</td>
+<td style="text-align:right">90.43</td>
+<td style="text-align:right">322.69</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2017</td>
+<td style="text-align:right">151.83</td>
+<td style="text-align:right">144.78</td>
+<td style="text-align:right">26.31</td>
+<td style="text-align:right">97.95</td>
+<td style="text-align:right">319.03</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2018</td>
+<td style="text-align:right">158.83</td>
+<td style="text-align:right">151.28</td>
+<td style="text-align:right">28.06</td>
+<td style="text-align:right">104.95</td>
+<td style="text-align:right">334.27</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2019</td>
+<td style="text-align:right">165.68</td>
+<td style="text-align:right">157.21</td>
+<td style="text-align:right">30.07</td>
+<td style="text-align:right">110.39</td>
+<td style="text-align:right">357.13</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2020</td>
+<td style="text-align:right">171.50</td>
+<td style="text-align:right">162.37</td>
+<td style="text-align:right">31.38</td>
+<td style="text-align:right">115.14</td>
+<td style="text-align:right">367.03</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2021</td>
+<td style="text-align:right">189.67</td>
+<td style="text-align:right">178.99</td>
+<td style="text-align:right">36.41</td>
+<td style="text-align:right">127.46</td>
+<td style="text-align:right">374.60</td>
+</tr>
+<tr>
+<td style="text-align:left">Mortality Rate</td>
+<td style="text-align:right">102.08</td>
+<td style="text-align:right">70.60</td>
+<td style="text-align:right">103.19</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">1062.03</td>
+</tr>
+</tbody>
+</table>
+<p>How COVID-19 Mortality Rates Compare Against $\text{HPI}_{2021}$</p>
+<p>
+  <img src="/img/covid/memo_files/figure-commonmark/unnamed-chunk-2-1.png" alt="">
+
+</p>
+<p>
+  <img src="/img/covid/memo_files/figure-commonmark/unnamed-chunk-3-1.png" alt="">
+
+</p>
+<p>Initial trends indicate that there’s a general negative trend between
+mortality rate and $\text{HPI}_{2021}$.</p>
+<p>
+  <img src="/img/covid/memo_files/figure-commonmark/unnamed-chunk-4-1.png" alt="">
+
+</p>
+<p>This demonstrates the variability between states’ $\text{HPI}<em>{2021}$
+and COVID-19 mortality rates. The fact that the proportion of
+$\text{HPI}</em>{2021}$ and mortality rate varies drastically depending on
+state indicates that both mortality and $\text{HPI}_{2021}$ may depend
+on the state and state-specific policies. In econometric terms, we need
+to include state-specific fixed effects in our econometric model in
+order to further satisfy $E[\epsilon|X]=0$</p>
+<h2 id="econometric-model">Econometric Model</h2>
+<p>It is hypothesized that there are unobserved effects in the data that
+are dependent upon each state ($s$) such that for each county ($c$) that
+we wish to estimate the COVID-19 mortality effect on per-county housing
+prices in 2021 ($\text{HPI}<em>{2021}$), the error term ($\epsilon$) can
+thus be represented by $\epsilon</em>{sc}=\alpha_s+\eta_{st}$. We will
+remedy this issue by using a fixed effects model by including $n-1$
+dummy variables for $n$ states.</p>
+<p>Furthermore, due to the lagged effects in the model, the theoretical
+model incorporates some time effect $t$, where $t$ is the specified
+year. Including these lagged effects in the econometric model will make
+the estimate for the coefficient on COVID-19 mortality less biased since
+it will be ridden from the time-trends in HPI that occur due to the
+nature of time-series dependent data. Excluding the lags from model will
+likely lead to a biased coefficient on the estimated effect for
+mortality, as it would have encapsulated the effects of the lagged
+variables in $\eta_{sc}$ which would have otherwise been controlled for
+in the model. Since $\text{HPI}<em>{2021}$ is significantly dependent upon
+$\text{HPI}</em>{2021-1},&hellip;,\text{HPI}_{2021-P}$ (as shown in <a href="#a1">A.1</a>),
+where $P$ is the number of lags in the model (in this analysis we let
+$P=6$), then since $\delta_p &gt; 0 \quad \forall p \in {1,&hellip;,P}$, then
+the coefficient for mortality will be <strong>overestimated</strong> <em>if</em> the lag
+variables are excluded from the model.</p>
+<p>Hence, for year $t$, state $s$, and county $c$, we wish to estimate for
+$n$ # of states,</p>
+<ol>
+<li>$\text{HPI}<em>{sct} = \beta_0+\beta_1\text{Mortality}</em>{sct-1}+\sum_{j=1}^{n-1}\beta_{j+1}I(\text{State}<em>s=j)+\sum</em>{p=1}^{6}\delta_{p}\text{HPI}<em>{sct-p}+\eta</em>{sct}$</li>
+</ol>
+<p>Where $\beta_1$ is the parameter of interest. Since we are only
+interested in the effect that 2020 COVID-19 mortality had on 2021
+per-county housing prices, setting $t=2021$ yields a regression on a
+cross-sectional data set</p>
+<p>Since we include only $n-1$ dummy variables for $n$ # of states, $X&rsquo;X$
+will be full rank and thus invertible. Since we control for state
+effects using a fixed effects model we further satisfy the assumption
+that $E[\eta_{sc}|X]=0$. This assumption is more reasonably satisfied
+with the inclusion of lagged effects on $\text{HPI}<em>{sct=2021}$. Since
+these lagged effects significantly affect the main response,
+$\text{HPI}</em>{sct=2021}$, including them in the model will isolate the
+estimated causal effect for $\beta_1$.</p>
+<h2 id="findings">Findings</h2>
+<p>Using OLS to estimate $\beta_1$, we arrived at the following estimate
+(see <a href="#a2">A.2</a> for full model output):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Coefficient</th>
+<th style="text-align:right">Estimate</th>
+<th style="text-align:right">Std. Error</th>
+<th style="text-align:right">T.Value</th>
+<th style="text-align:left">P.Value</th>
+<th style="text-align:right">2.5 %</th>
+<th style="text-align:right">97.5 %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Mortality Rate</td>
+<td style="text-align:right">-0.0031</td>
+<td style="text-align:right">0.0006105</td>
+<td style="text-align:right">-5.07407</td>
+<td style="text-align:left">0.00000041</td>
+<td style="text-align:right">-0.0043</td>
+<td style="text-align:right">-0.0019</td>
+</tr>
+</tbody>
+</table>
+<p>Adjusted $R^2$ = 0.9936818</p>
+<p>Controlling for the a state-fixed effects and lagged effects on
+$\text{HPI}_{sct=2021}$, the estimate for $\beta_1$ was found to be
+highly significant and negative.</p>
+<p>Holding all else constant, an additional COVID-19 mortality per 1,000
+residents decreases the county-average 2021 housing price index by an
+0.0031, on average.</p>
+<p>Holding all else constant, we are 95% confident that an additional
+COVID-19 mortality per 1,000 residents decreases the 2021 county-average
+housing price index between 0.0043 and 0.0019, on average.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>The conclusions following the empirical analysis align with economic
+theory. On average, fewer consumers in the housing market lead to an
+average decrease in the price on average. Controlling for all other
+relevant effects, the increase in per-county COVID-19 mortality implies
+a decrease in per-county 2021 HPI, on average. Though the housing prices
+over the past six years have generally risen, there is significant
+evidence to believe that on the county-level, 2021 HPI would have risen
+higher if COVID-19 mortality could have been mitigated on the
+county-level as well.</p>
+<h4 id="limitations">Limitations</h4>
+<p>Though the econometric model (1) controlled for as much as bias as
+possible to obtain an unbiased estimate for $\beta_1$, the model suffers
+from missing data in $X$. Though the NYT’s public database is one of the
+most up to date data bases on per-county COVID mortalities, some
+counties were marked as “unknown”, due to some state health department
+procedures. In addition, as mentioned earlier, several geographical
+exceptions made it impractical to measure the impact of per-county
+COVID-19 mortalities on housing prices for larger jurisdictions that
+cover multiple counties such as New York and Kansas City. In the cases
+where multiple counties or other non-county geographies were grouped as
+a single county, the fips code was dropped making it impractical to join
+with per-county housing price data.</p>
+<p>Additionally, housing price indices were aggregated over the
+county-specific zip-codes and computed as a mean for each county. A
+future analysis would weight these HPIs by the population weights in
+each zip code. This analysis assumes each zip code is weighted equally
+in population.</p>
+<h2 id="appendix">Appendix</h2>
+<h4 id="a1">A.1</h4>
+<p>I determined a sufficient # of lags ($P$) for the lagged effects on
+$\text{HPI}<em>{sct=2021}$ by regressing $\text{HPI}</em>{sct=2021}$ on
+$\text{HPI}<em>{sct-1},&hellip;,\text{HPI}</em>{sct-P}$ until the last the
+regression coefficient, $\delta_{P}$, was no longer significant for a
+chosen level of significance, $\alpha$. Let $\alpha=0.1$</p>
+<p>
+  <img src="/img/covid/memo_files/figure-commonmark/unnamed-chunk-6-1.png" alt="">
+
+</p>
+<p>Hence, let $P=6$.</p>
+<h4 id="a2">A.2</h4>
+<p>Full regression output for estimates on (1). (See also <a href="https://github.com/SamLeeBYU/CovidMortality/blob/main/Log/analysis_log.txt">log
+file</a>)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Coefficient</th>
+<th style="text-align:right">Estimate</th>
+<th style="text-align:right">Std. Error</th>
+<th style="text-align:right">T.Value</th>
+<th style="text-align:left">P.Value</th>
+<th style="text-align:right">2.5 %</th>
+<th style="text-align:right">97.5 %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">(Intercept)</td>
+<td style="text-align:right">9.08027</td>
+<td style="text-align:right">0.6515312</td>
+<td style="text-align:right">13.93682</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">7.80279</td>
+<td style="text-align:right">10.35776</td>
+</tr>
+<tr>
+<td style="text-align:left">Mortality Rate</td>
+<td style="text-align:right">-0.00310</td>
+<td style="text-align:right">0.0006105</td>
+<td style="text-align:right">-5.07407</td>
+<td style="text-align:left">0.00000041</td>
+<td style="text-align:right">-0.00430</td>
+<td style="text-align:right">-0.00190</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2015</td>
+<td style="text-align:right">-0.35359</td>
+<td style="text-align:right">0.0229598</td>
+<td style="text-align:right">-15.40042</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">-0.39861</td>
+<td style="text-align:right">-0.30857</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2016</td>
+<td style="text-align:right">-0.02682</td>
+<td style="text-align:right">0.0452753</td>
+<td style="text-align:right">-0.59248</td>
+<td style="text-align:left">0.55357000</td>
+<td style="text-align:right">-0.11560</td>
+<td style="text-align:right">0.06195</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2017</td>
+<td style="text-align:right">0.20687</td>
+<td style="text-align:right">0.0430709</td>
+<td style="text-align:right">4.80295</td>
+<td style="text-align:left">0.00000164</td>
+<td style="text-align:right">0.12242</td>
+<td style="text-align:right">0.29132</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2018</td>
+<td style="text-align:right">-0.13237</td>
+<td style="text-align:right">0.0412066</td>
+<td style="text-align:right">-3.21236</td>
+<td style="text-align:left">0.00133018</td>
+<td style="text-align:right">-0.21317</td>
+<td style="text-align:right">-0.05157</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2019</td>
+<td style="text-align:right">-0.59148</td>
+<td style="text-align:right">0.0437516</td>
+<td style="text-align:right">-13.51910</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">-0.67727</td>
+<td style="text-align:right">-0.50570</td>
+</tr>
+<tr>
+<td style="text-align:left">HPI 2020</td>
+<td style="text-align:right">1.86692</td>
+<td style="text-align:right">0.0324828</td>
+<td style="text-align:right">57.47427</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">1.80323</td>
+<td style="text-align:right">1.93061</td>
+</tr>
+<tr>
+<td style="text-align:left">Alaska</td>
+<td style="text-align:right">0.87602</td>
+<td style="text-align:right">0.7252829</td>
+<td style="text-align:right">1.20783</td>
+<td style="text-align:left">0.22720542</td>
+<td style="text-align:right">-0.54607</td>
+<td style="text-align:right">2.29811</td>
+</tr>
+<tr>
+<td style="text-align:left">Arizona</td>
+<td style="text-align:right">9.70355</td>
+<td style="text-align:right">0.8636497</td>
+<td style="text-align:right">11.23551</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">8.01015</td>
+<td style="text-align:right">11.39694</td>
+</tr>
+<tr>
+<td style="text-align:left">Arkansas</td>
+<td style="text-align:right">2.48756</td>
+<td style="text-align:right">0.4915096</td>
+<td style="text-align:right">5.06106</td>
+<td style="text-align:left">0.00000044</td>
+<td style="text-align:right">1.52384</td>
+<td style="text-align:right">3.45128</td>
+</tr>
+<tr>
+<td style="text-align:left">California</td>
+<td style="text-align:right">6.89466</td>
+<td style="text-align:right">0.6093635</td>
+<td style="text-align:right">11.31452</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">5.69985</td>
+<td style="text-align:right">8.08946</td>
+</tr>
+<tr>
+<td style="text-align:left">Colorado</td>
+<td style="text-align:right">2.87857</td>
+<td style="text-align:right">0.5502238</td>
+<td style="text-align:right">5.23163</td>
+<td style="text-align:left">0.00000018</td>
+<td style="text-align:right">1.79972</td>
+<td style="text-align:right">3.95741</td>
+</tr>
+<tr>
+<td style="text-align:left">Delaware</td>
+<td style="text-align:right">5.75894</td>
+<td style="text-align:right">1.7115600</td>
+<td style="text-align:right">3.36473</td>
+<td style="text-align:left">0.00077563</td>
+<td style="text-align:right">2.40302</td>
+<td style="text-align:right">9.11487</td>
+</tr>
+<tr>
+<td style="text-align:left">District of Columbia</td>
+<td style="text-align:right">0.44122</td>
+<td style="text-align:right">3.0003582</td>
+<td style="text-align:right">0.14705</td>
+<td style="text-align:left">0.88309895</td>
+<td style="text-align:right">-5.44171</td>
+<td style="text-align:right">6.32414</td>
+</tr>
+<tr>
+<td style="text-align:left">Florida</td>
+<td style="text-align:right">4.68318</td>
+<td style="text-align:right">0.5734236</td>
+<td style="text-align:right">8.16706</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">3.55885</td>
+<td style="text-align:right">5.80752</td>
+</tr>
+<tr>
+<td style="text-align:left">Georgia</td>
+<td style="text-align:right">0.42052</td>
+<td style="text-align:right">0.4279287</td>
+<td style="text-align:right">0.98268</td>
+<td style="text-align:left">0.32584226</td>
+<td style="text-align:right">-0.41854</td>
+<td style="text-align:right">1.25957</td>
+</tr>
+<tr>
+<td style="text-align:left">Hawaii</td>
+<td style="text-align:right">5.58311</td>
+<td style="text-align:right">1.4297505</td>
+<td style="text-align:right">3.90495</td>
+<td style="text-align:left">0.00009628</td>
+<td style="text-align:right">2.77974</td>
+<td style="text-align:right">8.38648</td>
+</tr>
+<tr>
+<td style="text-align:left">Idaho</td>
+<td style="text-align:right">10.65327</td>
+<td style="text-align:right">0.7255525</td>
+<td style="text-align:right">14.68297</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">9.23065</td>
+<td style="text-align:right">12.07589</td>
+</tr>
+<tr>
+<td style="text-align:left">Illinois</td>
+<td style="text-align:right">0.17282</td>
+<td style="text-align:right">0.4656942</td>
+<td style="text-align:right">0.37110</td>
+<td style="text-align:left">0.71058516</td>
+<td style="text-align:right">-0.74028</td>
+<td style="text-align:right">1.08593</td>
+</tr>
+<tr>
+<td style="text-align:left">Indiana</td>
+<td style="text-align:right">0.67766</td>
+<td style="text-align:right">0.4708831</td>
+<td style="text-align:right">1.43912</td>
+<td style="text-align:left">0.15021823</td>
+<td style="text-align:right">-0.24562</td>
+<td style="text-align:right">1.60094</td>
+</tr>
+<tr>
+<td style="text-align:left">Iowa</td>
+<td style="text-align:right">-0.68887</td>
+<td style="text-align:right">0.4729804</td>
+<td style="text-align:right">-1.45645</td>
+<td style="text-align:left">0.14537018</td>
+<td style="text-align:right">-1.61627</td>
+<td style="text-align:right">0.23852</td>
+</tr>
+<tr>
+<td style="text-align:left">Kansas</td>
+<td style="text-align:right">-0.08220</td>
+<td style="text-align:right">0.4611358</td>
+<td style="text-align:right">-0.17825</td>
+<td style="text-align:left">0.85854226</td>
+<td style="text-align:right">-0.98636</td>
+<td style="text-align:right">0.82197</td>
+</tr>
+<tr>
+<td style="text-align:left">Kentucky</td>
+<td style="text-align:right">0.40446</td>
+<td style="text-align:right">0.4493046</td>
+<td style="text-align:right">0.90018</td>
+<td style="text-align:left">0.36809361</td>
+<td style="text-align:right">-0.47651</td>
+<td style="text-align:right">1.28543</td>
+</tr>
+<tr>
+<td style="text-align:left">Louisiana</td>
+<td style="text-align:right">-0.76242</td>
+<td style="text-align:right">0.5327908</td>
+<td style="text-align:right">-1.43100</td>
+<td style="text-align:left">0.15253188</td>
+<td style="text-align:right">-1.80709</td>
+<td style="text-align:right">0.28224</td>
+</tr>
+<tr>
+<td style="text-align:left">Maine</td>
+<td style="text-align:right">0.14863</td>
+<td style="text-align:right">0.8118053</td>
+<td style="text-align:right">0.18309</td>
+<td style="text-align:left">0.85473815</td>
+<td style="text-align:right">-1.44310</td>
+<td style="text-align:right">1.74037</td>
+</tr>
+<tr>
+<td style="text-align:left">Maryland</td>
+<td style="text-align:right">4.10228</td>
+<td style="text-align:right">0.7012481</td>
+<td style="text-align:right">5.84996</td>
+<td style="text-align:left">0.00000001</td>
+<td style="text-align:right">2.72731</td>
+<td style="text-align:right">5.47724</td>
+</tr>
+<tr>
+<td style="text-align:left">Massachusetts</td>
+<td style="text-align:right">2.26367</td>
+<td style="text-align:right">0.8603208</td>
+<td style="text-align:right">2.63120</td>
+<td style="text-align:left">0.00855122</td>
+<td style="text-align:right">0.57681</td>
+<td style="text-align:right">3.95054</td>
+</tr>
+<tr>
+<td style="text-align:left">Michigan</td>
+<td style="text-align:right">0.69564</td>
+<td style="text-align:right">0.4874590</td>
+<td style="text-align:right">1.42707</td>
+<td style="text-align:left">0.15366069</td>
+<td style="text-align:right">-0.26014</td>
+<td style="text-align:right">1.65142</td>
+</tr>
+<tr>
+<td style="text-align:left">Minnesota</td>
+<td style="text-align:right">1.33058</td>
+<td style="text-align:right">0.4866585</td>
+<td style="text-align:right">2.73410</td>
+<td style="text-align:left">0.00629108</td>
+<td style="text-align:right">0.37636</td>
+<td style="text-align:right">2.28479</td>
+</tr>
+<tr>
+<td style="text-align:left">Mississippi</td>
+<td style="text-align:right">-0.22151</td>
+<td style="text-align:right">0.4857819</td>
+<td style="text-align:right">-0.45599</td>
+<td style="text-align:left">0.64842859</td>
+<td style="text-align:right">-1.17400</td>
+<td style="text-align:right">0.73098</td>
+</tr>
+<tr>
+<td style="text-align:left">Missouri</td>
+<td style="text-align:right">2.29708</td>
+<td style="text-align:right">0.4503887</td>
+<td style="text-align:right">5.10021</td>
+<td style="text-align:left">0.00000036</td>
+<td style="text-align:right">1.41398</td>
+<td style="text-align:right">3.18017</td>
+</tr>
+<tr>
+<td style="text-align:left">Montana</td>
+<td style="text-align:right">9.33223</td>
+<td style="text-align:right">0.6064473</td>
+<td style="text-align:right">15.38836</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">8.14314</td>
+<td style="text-align:right">10.52131</td>
+</tr>
+<tr>
+<td style="text-align:left">Nebraska</td>
+<td style="text-align:right">0.49024</td>
+<td style="text-align:right">0.4842142</td>
+<td style="text-align:right">1.01245</td>
+<td style="text-align:left">0.31140438</td>
+<td style="text-align:right">-0.45918</td>
+<td style="text-align:right">1.43966</td>
+</tr>
+<tr>
+<td style="text-align:left">Nevada</td>
+<td style="text-align:right">7.79373</td>
+<td style="text-align:right">0.8445802</td>
+<td style="text-align:right">9.22794</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">6.13773</td>
+<td style="text-align:right">9.44974</td>
+</tr>
+<tr>
+<td style="text-align:left">New Hampshire</td>
+<td style="text-align:right">1.98369</td>
+<td style="text-align:right">0.9927911</td>
+<td style="text-align:right">1.99809</td>
+<td style="text-align:left">0.04579509</td>
+<td style="text-align:right">0.03708</td>
+<td style="text-align:right">3.93029</td>
+</tr>
+<tr>
+<td style="text-align:left">New Jersey</td>
+<td style="text-align:right">3.80694</td>
+<td style="text-align:right">0.7612258</td>
+<td style="text-align:right">5.00107</td>
+<td style="text-align:left">0.00000060</td>
+<td style="text-align:right">2.31437</td>
+<td style="text-align:right">5.29951</td>
+</tr>
+<tr>
+<td style="text-align:left">New Mexico</td>
+<td style="text-align:right">-0.03753</td>
+<td style="text-align:right">0.6253614</td>
+<td style="text-align:right">-0.06001</td>
+<td style="text-align:left">0.95215054</td>
+<td style="text-align:right">-1.26370</td>
+<td style="text-align:right">1.18864</td>
+</tr>
+<tr>
+<td style="text-align:left">New York</td>
+<td style="text-align:right">2.84983</td>
+<td style="text-align:right">0.5398307</td>
+<td style="text-align:right">5.27911</td>
+<td style="text-align:left">0.00000014</td>
+<td style="text-align:right">1.79136</td>
+<td style="text-align:right">3.90830</td>
+</tr>
+<tr>
+<td style="text-align:left">North Carolina</td>
+<td style="text-align:right">3.08102</td>
+<td style="text-align:right">0.4630017</td>
+<td style="text-align:right">6.65445</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">2.17320</td>
+<td style="text-align:right">3.98885</td>
+</tr>
+<tr>
+<td style="text-align:left">North Dakota</td>
+<td style="text-align:right">2.18345</td>
+<td style="text-align:right">0.6718277</td>
+<td style="text-align:right">3.25001</td>
+<td style="text-align:left">0.00116651</td>
+<td style="text-align:right">0.86617</td>
+<td style="text-align:right">3.50073</td>
+</tr>
+<tr>
+<td style="text-align:left">Ohio</td>
+<td style="text-align:right">-0.90850</td>
+<td style="text-align:right">0.4762208</td>
+<td style="text-align:right">-1.90773</td>
+<td style="text-align:left">0.05651970</td>
+<td style="text-align:right">-1.84225</td>
+<td style="text-align:right">0.02524</td>
+</tr>
+<tr>
+<td style="text-align:left">Oklahoma</td>
+<td style="text-align:right">2.55833</td>
+<td style="text-align:right">0.4972734</td>
+<td style="text-align:right">5.14471</td>
+<td style="text-align:left">0.00000028</td>
+<td style="text-align:right">1.58330</td>
+<td style="text-align:right">3.53335</td>
+</tr>
+<tr>
+<td style="text-align:left">Oregon</td>
+<td style="text-align:right">5.49660</td>
+<td style="text-align:right">0.6729647</td>
+<td style="text-align:right">8.16774</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">4.17709</td>
+<td style="text-align:right">6.81611</td>
+</tr>
+<tr>
+<td style="text-align:left">Pennsylvania</td>
+<td style="text-align:right">1.16220</td>
+<td style="text-align:right">0.5061576</td>
+<td style="text-align:right">2.29612</td>
+<td style="text-align:left">0.02173633</td>
+<td style="text-align:right">0.16976</td>
+<td style="text-align:right">2.15464</td>
+</tr>
+<tr>
+<td style="text-align:left">Rhode Island</td>
+<td style="text-align:right">2.69825</td>
+<td style="text-align:right">1.3474705</td>
+<td style="text-align:right">2.00246</td>
+<td style="text-align:left">0.04532383</td>
+<td style="text-align:right">0.05621</td>
+<td style="text-align:right">5.34029</td>
+</tr>
+<tr>
+<td style="text-align:left">South Carolina</td>
+<td style="text-align:right">1.52320</td>
+<td style="text-align:right">0.5600854</td>
+<td style="text-align:right">2.71959</td>
+<td style="text-align:left">0.00657320</td>
+<td style="text-align:right">0.42502</td>
+<td style="text-align:right">2.62139</td>
+</tr>
+<tr>
+<td style="text-align:left">South Dakota</td>
+<td style="text-align:right">2.32386</td>
+<td style="text-align:right">0.5424788</td>
+<td style="text-align:right">4.28379</td>
+<td style="text-align:left">0.00001894</td>
+<td style="text-align:right">1.26020</td>
+<td style="text-align:right">3.38752</td>
+</tr>
+<tr>
+<td style="text-align:left">Tennessee</td>
+<td style="text-align:right">4.61973</td>
+<td style="text-align:right">0.4815199</td>
+<td style="text-align:right">9.59405</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">3.67559</td>
+<td style="text-align:right">5.56386</td>
+</tr>
+<tr>
+<td style="text-align:left">Texas</td>
+<td style="text-align:right">2.58799</td>
+<td style="text-align:right">0.4423724</td>
+<td style="text-align:right">5.85026</td>
+<td style="text-align:left">0.00000001</td>
+<td style="text-align:right">1.72062</td>
+<td style="text-align:right">3.45537</td>
+</tr>
+<tr>
+<td style="text-align:left">Utah</td>
+<td style="text-align:right">10.62956</td>
+<td style="text-align:right">0.6978804</td>
+<td style="text-align:right">15.23121</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">9.26120</td>
+<td style="text-align:right">11.99792</td>
+</tr>
+<tr>
+<td style="text-align:left">Vermont</td>
+<td style="text-align:right">0.94603</td>
+<td style="text-align:right">0.8657926</td>
+<td style="text-align:right">1.09268</td>
+<td style="text-align:left">0.27462088</td>
+<td style="text-align:right">-0.75156</td>
+<td style="text-align:right">2.64363</td>
+</tr>
+<tr>
+<td style="text-align:left">Virginia</td>
+<td style="text-align:right">2.44825</td>
+<td style="text-align:right">0.4504892</td>
+<td style="text-align:right">5.43464</td>
+<td style="text-align:left">0.00000006</td>
+<td style="text-align:right">1.56496</td>
+<td style="text-align:right">3.33154</td>
+</tr>
+<tr>
+<td style="text-align:left">Washington</td>
+<td style="text-align:right">4.22278</td>
+<td style="text-align:right">0.6794959</td>
+<td style="text-align:right">6.21458</td>
+<td style="text-align:left">0.00000000</td>
+<td style="text-align:right">2.89047</td>
+<td style="text-align:right">5.55510</td>
+</tr>
+<tr>
+<td style="text-align:left">West Virginia</td>
+<td style="text-align:right">0.55756</td>
+<td style="text-align:right">0.5466830</td>
+<td style="text-align:right">1.01990</td>
+<td style="text-align:left">0.30785529</td>
+<td style="text-align:right">-0.51434</td>
+<td style="text-align:right">1.62947</td>
+</tr>
+<tr>
+<td style="text-align:left">Wisconsin</td>
+<td style="text-align:right">0.32255</td>
+<td style="text-align:right">0.5009011</td>
+<td style="text-align:right">0.64393</td>
+<td style="text-align:left">0.51966771</td>
+<td style="text-align:right">-0.65959</td>
+<td style="text-align:right">1.30468</td>
+</tr>
+<tr>
+<td style="text-align:left">Wyoming</td>
+<td style="text-align:right">4.29918</td>
+<td style="text-align:right">0.7469335</td>
+<td style="text-align:right">5.75577</td>
+<td style="text-align:left">0.00000001</td>
+<td style="text-align:right">2.83464</td>
+<td style="text-align:right">5.76372</td>
+</tr>
+</tbody>
+</table>
+
+
+                
+
+                
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2023/11/13/byu-traffic-citations/" data-toggle="tooltip" data-placement="top" title="University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                </ul>
+                
+
+                
+
+
+
+            </div>
+
+            
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/data-science" title="data-science">
+                            data-science
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">                  
+                    
+                    <li>
+                        <a href="mailto:samlee.byu@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
+                    
+                    
+                    
+                    
+
+		            
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/SamLeeBYU">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		            
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://www.linkedin.com/in/SamLeeBYU">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
+                    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+           
+             </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; Everyday Statistics 2023
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite">CleanWhite Hugo Theme</a> by <a href="https://zhaohuabing.com">Huabing</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=zhaohuabing&repo=hugo-theme-cleanwhite&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function loadAsync(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        loadAsync("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    loadAsync("https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        
+        
+        
+        
+            _containerSelector = 'div.post-container'
+        
+
+        
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        
+        $(selector).html('')
+
+        
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    
+
+
+    loadAsync("\/js\/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+</body>
+</html>

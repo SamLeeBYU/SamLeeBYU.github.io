@@ -6,7 +6,17 @@
     <description>Recent content in python on Everyday Statistics</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 29 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 13 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection</title>
+      <link>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</link>
+      <pubDate>Mon, 13 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</guid>
+      <description>Introduction Both private and public universities across the United Sates typically have university-specific parking service to enforce university parking regulations due to limited parking space supply. For the purposes of this analysis, we will analyze traffic citation data specific to my university, Brigham Young University.
+The purpose behind this analysis will be to see if we can trace out any signal behind the relationship of number of traffic citations given on a particular day and effects in weather and air quality.</description>
+    </item>
+    
     <item>
       <title>Web Scraping Using Selenium: Best Practices and Example</title>
       <link>https://SamLeeBYU.github.io/2023/09/29/selenium-best-practices/</link>

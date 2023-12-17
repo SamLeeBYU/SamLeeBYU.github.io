@@ -2,17 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://SamLeeBYU.github.io/tags/causal-inference/</loc>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://SamLeeBYU.github.io/tags/data-science/</loc>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://SamLeeBYU.github.io/tags/econometrics/</loc>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://SamLeeBYU.github.io/</loc>
-    <lastmod>2023-09-29T00:00:00+00:00</lastmod>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://SamLeeBYU.github.io/2023/12/12/covid-mortality-effect-on-housing/</loc>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://SamLeeBYU.github.io/post/</loc>
-    <lastmod>2023-09-29T00:00:00+00:00</lastmod>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://SamLeeBYU.github.io/tags/python/</loc>
-    <lastmod>2023-09-29T00:00:00+00:00</lastmod>
+    <loc>https://SamLeeBYU.github.io/tags/stata/</loc>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://SamLeeBYU.github.io/tags/</loc>
-    <lastmod>2023-09-29T00:00:00+00:00</lastmod>
+    <lastmod>2023-12-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://SamLeeBYU.github.io/tags/eda/</loc>
+    <lastmod>2023-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://SamLeeBYU.github.io/tags/python/</loc>
+    <lastmod>2023-11-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</loc>
+    <lastmod>2023-11-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://SamLeeBYU.github.io/tags/tutorial/</loc>
     <lastmod>2023-09-29T00:00:00+00:00</lastmod>

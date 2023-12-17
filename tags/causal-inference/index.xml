@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Causal Inference on Everyday Statistics</title>
+    <link>https://SamLeeBYU.github.io/tags/causal-inference/</link>
+    <description>Recent content in Causal Inference on Everyday Statistics</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 12 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/causal-inference/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices</title>
+      <link>https://SamLeeBYU.github.io/2023/12/12/covid-mortality-effect-on-housing/</link>
+      <pubDate>Tue, 12 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/2023/12/12/covid-mortality-effect-on-housing/</guid>
+      <description>Introduction In this analysis I seek to estimate the causal effect that 2020 COVID-19 mortality rates had on per-county housing prices in the United States in 2021. According to elementary economic theory, all else equal, when consumers of a good leave a market, demand decreases. This implies that prices decrease at every quantity demanded (Law of Demand). This theory may be grimly applied when we analyze COVID-19 mortality deaths from 2020.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -6,7 +6,26 @@
     <description>Recent content on Everyday Statistics</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 29 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 12 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Interpreting a Causal Effect for COVID-19 Mortality on Per-County Housing Prices</title>
+      <link>https://SamLeeBYU.github.io/2023/12/12/covid-mortality-effect-on-housing/</link>
+      <pubDate>Tue, 12 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/2023/12/12/covid-mortality-effect-on-housing/</guid>
+      <description>Introduction In this analysis I seek to estimate the causal effect that 2020 COVID-19 mortality rates had on per-county housing prices in the United States in 2021. According to elementary economic theory, all else equal, when consumers of a good leave a market, demand decreases. This implies that prices decrease at every quantity demanded (Law of Demand). This theory may be grimly applied when we analyze COVID-19 mortality deaths from 2020.</description>
+    </item>
+    
+    <item>
+      <title>University Traffic Fines vs. Trends in Weather &amp; Air Quality - Data Collection</title>
+      <link>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</link>
+      <pubDate>Mon, 13 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/2023/11/13/byu-traffic-citations/</guid>
+      <description>Introduction Both private and public universities across the United Sates typically have university-specific parking service to enforce university parking regulations due to limited parking space supply. For the purposes of this analysis, we will analyze traffic citation data specific to my university, Brigham Young University.
+The purpose behind this analysis will be to see if we can trace out any signal behind the relationship of number of traffic citations given on a particular day and effects in weather and air quality.</description>
+    </item>
+    
     <item>
       <title>Web Scraping Using Selenium: Best Practices and Example</title>
       <link>https://SamLeeBYU.github.io/2023/09/29/selenium-best-practices/</link>
