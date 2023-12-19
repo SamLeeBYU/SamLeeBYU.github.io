@@ -11,3 +11,5 @@ MathJax.Hub.Config({
       }
     }
   });
+
+  console.log("Loaded latex")
