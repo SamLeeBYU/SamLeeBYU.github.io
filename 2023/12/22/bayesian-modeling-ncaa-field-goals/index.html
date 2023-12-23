@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="Everyday Statistics">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="/img/MarchMadness/mm.jpg">
+    <meta property="twitter:image" content="/img/MarchMadness/mm.jpg" />
+    
+
+    
+    <meta name="title" content="Bayesian Modeling with NCAA Field Goal Attempts and Percentages" />
+    <meta property="og:title" content="Bayesian Modeling with NCAA Field Goal Attempts and Percentages" />
+    <meta property="twitter:title" content="Bayesian Modeling with NCAA Field Goal Attempts and Percentages" />
+    
+
+    
+    <meta name="description" content="A bayesian modeling project to simulate the 2023 March Madness Tournament using gibbs sampling of unknown parameters">
+    <meta property="og:description" content="A bayesian modeling project to simulate the 2023 March Madness Tournament using gibbs sampling of unknown parameters" />
+    <meta property="twitter:description" content="A bayesian modeling project to simulate the 2023 March Madness Tournament using gibbs sampling of unknown parameters" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="Sam Lee, BYU, Sam Lee Statistics, Blog, Personal Website, Bayesian, Econometrics, R, Python, Data Science">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Bayesian Modeling with NCAA Field Goal Attempts and Percentages | Sam Lee | Everyday Statistics</title>
+
+    <link rel="canonical" href="/2023/12/22/bayesian-modeling-ncaa-field-goals/">
+
+    
+    
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hugo-theme-cleanwhite.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link rel="stylesheet" href="/css/font-awesome.all.min.css">
+
+    
+    <link rel="stylesheet" href="https://SamLeeBYU.github.io/css/main.css">
+
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    <script src="/js/lazysizes.min.js"></script>
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
+    
+    <script src="https://SamLeeBYU.github.io/js/latex.js"></script>
+    
+
+</head>
+
+
+
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Everyday Statistics</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">All Posts</a>
+                    </li>
+                    
+                        
+                    
+                    
+		    
+                        <li><a href="/archive//">ARCHIVE</a></li>
+                    
+                        <li><a href="/about//">ABOUT</a></li>
+                    
+		            <li>
+                        <a href="/search"><i class="fa fa-search"></i></a>
+		           </li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/MarchMadness/mm.jpg')
+    }
+</style>
+
+<header class="intro-header" >
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/r" title="R">
+                            R
+                        </a>
+                        
+                        <a class="tag" href="/tags/bayesian-statistics" title="Bayesian Statistics">
+                            Bayesian Statistics
+                        </a>
+                        
+                        <a class="tag" href="/tags/mcmc" title="MCMC">
+                            MCMC
+                        </a>
+                        
+                    </div>
+                    <h1>Bayesian Modeling with NCAA Field Goal Attempts and Percentages</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        
+                            Posted by 
+                            
+                                    Aleena Eskeets, Sam Lee
+                             
+                            on 
+                            Friday, December 22, 2023
+                            
+                            
+                            
+                            
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <h2 id="introduction">Introduction</h2>
+<p>The NCAA Men’s Basketball tournament has been a well-known and highly
+anticipated sporting event since 1939 for not only the athletic aspects
+of the game, but also for the prediction of winning brackets. In the
+realm of sports analytics and statistical modeling, the question of
+replicating tournament outcomes has become an increasingly intriguing
+challenge. Although there are various covariates that contribute to
+whether a team wins or lose, we aim to utilize the Field Goal Attempts
+(FGA) data from the 2022 regular season to replicate the 2023 results of
+the tournament. Upon running a <a href="#simulation">simulation</a> of the 2023
+NCAA March Madness Tournament with our model, we found that of the 358
+teams, Gonzaga and Oral Roberts ended up in the final championship
+match. We will choose Gonzaga and Oral Roberts to follow along as we
+conduct a further analysis.</p>
+<h2 id="methods">Methods</h2>
+<p><strong>Field Goals Attempted (FGA)</strong>: Upon looking at the 2022 regular season
+data, we observed the distribution of FGA to be approximately normal
+(<a href="#a0">A.0</a>). Therefore, we will assume that the true distributions for
+FGA for each $k$th team is also normally distributed and use a normal
+distribution with mean $\mu_k$ and variance $\sigma_k^2$ as our prior
+distribution. Thus, to calculate FGA, we will have two unknown
+parameters, $\mu_k$ and $\sigma^2_k$ and will use <a href="#gibbs">Gibbs
+Sampling</a> to approximate the following prior parameters from our
+2022 regular season data:</p>
+<ul>
+<li>
+<p>$\mu_k \sim N(\lambda_k,\tau_k); \quad \mu_\text{Gonzaga} \sim N$(62.48,
+11.33$^2); \quad \mu_\text{Oral Roberts} \sim N$(65.46, 7.67$^2)$</p>
+</li>
+<li>
+<p>$\sigma^2_{k} \sim \text{InvGam}(\gamma,\phi) \quad \forall k; \quad \sigma^2 \sim \text{InvGam}(\gamma$=11.79,$\phi$=441.6)</p>
+</li>
+</ul>
+<p>Then our likelihood would be
+$\text{FGA}_{ki} \sim N(\mu_k,\sigma^2_{k})$ and our posterior
+distribution is then the joint posterior, $(\mu_k, \sigma^2_{k})$. The
+subscript $i$ denotes the $i$th observation (FGA) for the $k$th team.
+(See <a href="#a3">A.3</a> for plot code.)</p>
+<p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-3-1.png" alt="">
+
+</p>
+<p><a href="#priors">Prior parameters</a> were chosen such that for each $k$th team,
+$\mu_k$ was the mean of $\text{FGA}_{ik}$ from the NCAA 2022 season and
+$\sigma_k$ was chosen as the range of the $\text{FGA}_{ik}$ divided by
+3–dividing by 6 would approximate the standard deviation given that the
+range is an unbiased estimator for the 99.7% interquartile range, thus
+dividing by 3 adds more uncertainty about our belief and less influence
+from the 2022 season. $\gamma_k$ and $\phi_k$ were chosen as a generic
+prior using a method of moments from data from the 2022 season to select
+unbiased estimators for the variance of FGA across all teams <a href="#a4">A.4</a>.</p>
+<p><strong>Field Goal Percentage (FGP)</strong>: FGP is a proportion calculated from FGA
+divided by FGM. Utilizing the 2022 regular season data, we modeled our
+prior distribution below:$\text{FGP}_{k} \sim Beta(\alpha_k,\beta_k)$</p>
+<p>For each game $g$ and team $k$, our likelihood is
+$X_{gki} \sim Binom(\text{FGP}_{k})$, as we are modeling the idea that
+players either make the basket ($X_{gki}$) or do not. Then, as we have a
+binomial likelihood and a beta conjugate prior, we have a beta posterior
+distribution as follows:
+$\text{FGP}_{k}|Data_k \sim Beta(\alpha_k,\beta_k)$. Due to our
+questions of interest and compactness, we will not explore the posterior
+distribution for FGP in depth here and will refer to the appendix
+(<a href="#a2">A.2</a>)</p>
+<p>Priors:</p>
+<p>$\text{FGP}_\text{Gonzaga}\sim \text{Beta}(1.12, 1); \quad$
+$\text{FGP}_\text{Oral Roberts}\sim \text{Beta}(0.8290895, 1)$</p>
+<p>For each $k$th team the posterior will be:
+$\text{FGP}_k|\text{Data}_k\sim \text{Beta}(\alpha&rsquo;,\beta&rsquo;);$
+$\alpha&rsquo;=\sum_{g=1}^{n_k}\sum_{i=1}^{n_{gki}}x_{gki}+\alpha_k;$
+$\beta&rsquo;=\sum_{g=1}^{n_k}\sum_{i=1}^{n_{gki}}1-\sum_{g=1}^{n_k}\sum_{i=1}^{n_{gki}}x_{gki}+\beta_k$
+where $n_k$ is the # of games for team $k$, and $n_{gki}$ is the number
+of shots team $k$ attempts in game $g$.</p>
+<p><a href="#beta-posterior">Calculated Posteriors</a>:</p>
+<p>$\text{FGP}_\text{Gonzaga}|\text{Data}_\text{Gonzaga}\sim \text{Beta}(1026.12,
+939)$
+$\text{FGP}_\text{Oral Roberts}|\text{Data}_\text{Oral Roberts}\sim \text{Beta}(1026.12,
+939)$</p>
+<p><strong>Field Goals Made (FGM)</strong></p>
+<p>Research Question: Given our observations from the 2022 season, can we
+calculate overall Field Goals Made (FGM) and can we use FGM to predict
+which team would win in a match?</p>
+<p>If $\zeta_k$ is the true population mean of $\text{FGM}_{ik}$, We will
+estimate the following posterior distribution:
+$\zeta_{k}|\text{Data}_k$, where the random variable
+$\text{FGM}_{ik}=\text{FGA}_{ik} \times \text{FGP}_{ik}$</p>
+<p>Using this posterior, we wish to approximate,
+$\text{FGM}_{k} | {Data}_k &gt; \text{FGM}_{l} {|Data}_l, \text{where } \textit{k } \text{and } \textit{l } \text{are teams,} \forall k \neq {l}$
+to determine the probability team $k$ will score more field goals than
+team $l$. Thus,
+$\text{FGM}_{k} {|Data}_k &gt; \text{FGM}_{l} {|Data}_l \sim \text{Bernoulli}(p_{kl})$</p>
+<h3 id="summary-statistics-of-key-variables-for-the-2023-season-aggregated-accross-all-teams">Summary Statistics of Key Variables for the 2023 Season (Aggregated accross all teams)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Variable</th>
+<th style="text-align:right">Mean</th>
+<th style="text-align:right">Median</th>
+<th style="text-align:right">SD</th>
+<th style="text-align:right">Min</th>
+<th style="text-align:right">Max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">FGP</td>
+<td style="text-align:right">0.4424</td>
+<td style="text-align:right">0.4423</td>
+<td style="text-align:right">0.0719</td>
+<td style="text-align:right">0.1786</td>
+<td style="text-align:right">0.7193</td>
+</tr>
+<tr>
+<td style="text-align:left">FGA</td>
+<td style="text-align:right">57.2391</td>
+<td style="text-align:right">57.0000</td>
+<td style="text-align:right">6.8474</td>
+<td style="text-align:right">26.0000</td>
+<td style="text-align:right">91.0000</td>
+</tr>
+<tr>
+<td style="text-align:left">FGM</td>
+<td style="text-align:right">25.2510</td>
+<td style="text-align:right">25.0000</td>
+<td style="text-align:right">4.7402</td>
+<td style="text-align:right">9.0000</td>
+<td style="text-align:right">47.0000</td>
+</tr>
+</tbody>
+</table>
+<p>We obtained data for FGA and FGM for each team through publicly
+available data sets (see <a href="#data-soures">Data Sources</a>). See <a href="#set-up">“Set
+Up”</a> in the appendix to see how we wrangled the data.</p>
+<h2 id="results">Results</h2>
+<p>Posterior Distributions for FGA for Each $k$th Team:</p>
+<p>$\mu_k|\text{Data}_k,\sigma^2_k \sim N(\lambda&rsquo;_k, (\tau^2)_k&rsquo;) \quad \lambda&rsquo;_k = \frac{\tau_k^2(\sum_{i=1}^{n_k}x_{ki})+\sigma_k^2\lambda_k}{\tau_k^2} \quad (\tau^2_k)&rsquo;=\frac{\sigma_k^2\tau_k^2}{\tau_k^2n_k+\sigma_k^2}$</p>
+<p>$\sigma^2_k|\text{Data}_k,\mu_k ~ \text{InvGamma}(\gamma_k&rsquo;,\phi_k&rsquo;) \quad \gamma_k&rsquo;=\gamma_k+\frac{n_k}{2} \quad \phi_k&rsquo;=\frac{\phi_k\sum_{i=1}^{n_k}(x_{ik}-\mu_k)}{2}$</p>
+<p>Joint Distribution of $(\mu_k, \sigma^2_k)$ Approximated with Gibbs
+Sampling (See <a href="#a6">A.6</a> for plot code):</p>
+<p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-7-1.png" alt="">
+
+</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Gonzaga</th>
+<th>Oral Roberts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Expected Value for $\mu$</td>
+<td>61.3506974</td>
+<td>62.9155502</td>
+</tr>
+<tr>
+<td>Variance for $\mu$</td>
+<td>3.9418405</td>
+<td>3.2074749</td>
+</tr>
+<tr>
+<td>Expected Value for $\sigma^2$</td>
+<td>127.0707504</td>
+<td>102.1374316</td>
+</tr>
+<tr>
+<td>Variance for $\sigma^2$</td>
+<td>1664.3040285</td>
+<td>1096.8885862</td>
+</tr>
+</tbody>
+</table>
+<h4 id="posterior-predictivepredictive-distribution-on-fgm-see-a7a7-for-plot-code">Posterior <a href="#predictive">Predictive</a> Distribution on FGM (See <a href="#a7">A.7</a> for plot code):</h4>
+<p>$\text{FGM}_{k}|\text{Data}_k &gt; \text{FGM}_l|\text{Data}_k \sim \text{Bernoulli}(p_{kl}); p_{\text{Gonzaga},\text{Oral Roberts}} = 0.629$</p>
+<p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-8-1.png" alt="">
+
+</p>
+<p>Our estimated posterior predictive variance using Monte Carlo
+Approximation were 2.16 and 61.49 (respectively)</p>
+<p>95% <a href="#interval">Credible Interval</a> for Difference in FGM: Given our data
+and prior knowledge, the there is a 95% probability that the difference
+in FGM between Gonzaga and Oral Roberts will be between -13.27 and
+17.63.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Through deriving a posterior predictive distribution on the difference
+in the number FGM for any two teams we created a model for predicting
+the probability that one team will score more field goals (and thus have
+a higher chance of winning) over their opponent. However, we discovered
+that virtually all matchups had significant overlaps such that any 95%
+credible interval showed that using FGM as a metric alone, it was just
+as probable for the other team to score more FG than what our bernoulli
+model predicts. The Gonzaga-Oral Roberts matchup is just one notable
+example. One of the greatest limitations in this model is its failures
+to account for the opponent’s defense. There are certainly other
+confounders that can be adjusted for. However, this model shows that, at
+least for Oral Roberts and Gonzaga, the prior estimate of 2022 may be
+somewhat of an accurate prediction of 2023 FGA. With reduced
+variability, the posterior model shows similar FGA measures to the 2022
+prior estimates.</p>
+<h2 id="appendix">Appendix</h2>
+<h4 id="data-sources">Data Sources</h4>
+<ol>
+<li>
+<p>2022 and 2023 NCAA season data was obtained through Kaggle:
+<a href="https://www.kaggle.com/competitions/march-machine-learning-mania-2023">https://www.kaggle.com/competitions/march-machine-learning-mania-2023</a>.
+We obtained FGA and FGM data for each team through the data sets
+located here.</p>
+</li>
+<li>
+<p>2023 Tournament Data was obtained through Kaggle:
+<a href="https://www.kaggle.com/datasets/nishaanamin/march-madness-data?select=2023+Game+Data.csv">https://www.kaggle.com/datasets/nishaanamin/march-madness-data?select=2023+Game+Data.csv</a>.
+We used this data set to set up the a tournament simulation.</p>
+</li>
+</ol>
+<h4 id="set-up">Set up</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#50fa7b">library</span>(tidyverse)
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">library</span>(invgamma)
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">library</span>(ggplot2)
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">library</span>(gridExtra)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">set.seed</span>(<span style="color:#bd93f9">12142023</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>data_dir <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;march-machine-learning-mania-2023/&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>season_results <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">read_csv</span>(<span style="color:#50fa7b">str_c</span>(data_dir, <span style="color:#f1fa8c">&#34;MRegularSeasonDetailedResults.csv&#34;</span>))
+</span></span><span style="display:flex;"><span>teams <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">read_csv</span>(<span style="color:#50fa7b">str_c</span>(data_dir, <span style="color:#f1fa8c">&#34;MTeams.csv&#34;</span>))
+</span></span><span style="display:flex;"><span>tourney_results <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">read_csv</span>(<span style="color:#f1fa8c">&#34;2023 Game Data.csv&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>transform_data <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">function</span>(t){
+</span></span><span style="display:flex;"><span>  t <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pivot_longer</span>(cols<span style="color:#ff79c6">=</span><span style="color:#50fa7b">c</span>(WTeamID, LTeamID), names_to<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;WL&#34;</span>, values_to <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;TeamID&#34;</span>) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(TeamID, WL, WScore, LScore, WFGM, WFGA, LFGM, LFGA) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">left_join</span>(teams <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">select</span>(TeamID, TeamName)) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">pivot_longer</span>(cols<span style="color:#ff79c6">=</span><span style="color:#50fa7b">c</span>(WScore, LScore), values_to <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Score&#34;</span>, names_to <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;WLScore&#34;</span>) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">pivot_longer</span>(cols<span style="color:#ff79c6">=</span><span style="color:#50fa7b">c</span>(WFGM, LFGM), values_to<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;FGM&#34;</span>, names_to <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;WLFGM&#34;</span>) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">pivot_longer</span>(cols<span style="color:#ff79c6">=</span><span style="color:#50fa7b">c</span>(WFGA, LFGA), values_to<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;FGA&#34;</span>, names_to <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;WLFGA&#34;</span>) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">mutate</span>(WL <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sapply</span>(WL, <span style="color:#50fa7b">function</span>(x)<span style="color:#50fa7b">substr</span>(x,<span style="color:#bd93f9">1</span>,<span style="color:#bd93f9">1</span>)),
+</span></span><span style="display:flex;"><span>         WLScore <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sapply</span>(WLScore, <span style="color:#50fa7b">function</span>(x)<span style="color:#50fa7b">substr</span>(x,<span style="color:#bd93f9">1</span>,<span style="color:#bd93f9">1</span>)),
+</span></span><span style="display:flex;"><span>         WLFGM <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sapply</span>(WLFGM, <span style="color:#50fa7b">function</span>(x)<span style="color:#50fa7b">substr</span>(x,<span style="color:#bd93f9">1</span>,<span style="color:#bd93f9">1</span>)),
+</span></span><span style="display:flex;"><span>         WLFGA <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sapply</span>(WLFGA, <span style="color:#50fa7b">function</span>(x)<span style="color:#50fa7b">substr</span>(x,<span style="color:#bd93f9">1</span>,<span style="color:#bd93f9">1</span>))
+</span></span><span style="display:flex;"><span>  ) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">rowwise</span>() <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(<span style="color:#50fa7b">all</span>(<span style="color:#50fa7b">c</span>(WL, WLScore, WLFGM, WLFGA) <span style="color:#ff79c6">==</span> 
+</span></span><span style="display:flex;"><span>               <span style="color:#50fa7b">first</span>(<span style="color:#50fa7b">c</span>(WL, WLScore, WLFGM, WLFGA)))) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(TeamID, WL, TeamName, Score, FGM, FGA)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#2022 Season</span>
+</span></span><span style="display:flex;"><span>season.2022 <span style="color:#ff79c6">&lt;-</span> season_results <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Season <span style="color:#ff79c6">%in%</span> <span style="color:#bd93f9">2022</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>season.2022 <span style="color:#ff79c6">&lt;-</span> <span style="color:#50fa7b">transform_data</span>(season.2022)
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>season.2022 <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">mutate</span>(
+</span></span><span style="display:flex;"><span>    FGP <span style="color:#ff79c6">=</span> FGM<span style="color:#ff79c6">/</span>FGA
+</span></span><span style="display:flex;"><span>  ) <span style="color:#ff79c6">-&gt;</span> season.2022
+</span></span></code></pre></div><h4 id="priors">Calculate priors</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>calculate_prior_fgp <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">function</span>(p, beta<span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span>){
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Returns alpha for a Beta(alpha, beta) such that alpha/(alpha+beta) = </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#p (expected value)</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">return</span>(p<span style="color:#ff79c6">*</span>beta<span style="color:#ff79c6">/</span>(<span style="color:#bd93f9">1</span><span style="color:#ff79c6">-</span>p))
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Calculate priors for the field goal percentage ~ Beta(alpha, beta)</span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#and for the field goal attempts ~ N(mu, sigma^2)</span>
+</span></span><span style="display:flex;"><span>season.2022 <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">group_by</span>(TeamID) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">summarize</span>(
+</span></span><span style="display:flex;"><span>    fgp.alpha.prior <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">calculate_prior_fgp</span>(<span style="color:#50fa7b">mean</span>(FGP)),
+</span></span><span style="display:flex;"><span>    fgp.beta.prior <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span>,
+</span></span><span style="display:flex;"><span>    fga.lambda.prior <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">mean</span>(FGA),
+</span></span><span style="display:flex;"><span>    fga.tau.prior <span style="color:#ff79c6">=</span> (<span style="color:#50fa7b">max</span>(FGA)<span style="color:#ff79c6">-</span><span style="color:#50fa7b">min</span>(FGA))<span style="color:#ff79c6">/</span><span style="color:#bd93f9">3</span>
+</span></span><span style="display:flex;"><span>  ) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">ungroup</span>() <span style="color:#ff79c6">-&gt;</span> season.2022.priors
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>variances <span style="color:#ff79c6">=</span> season.2022 <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">group_by</span>(TeamID) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">summarize</span>(
+</span></span><span style="display:flex;"><span>    variances <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">var</span>(FGA)
+</span></span><span style="display:flex;"><span>  )
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Method of Moments https://arxiv.org/pdf/1605.01019.pdf</span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#To create a generic prior for all k teams</span>
+</span></span><span style="display:flex;"><span>season.2022.priors<span style="color:#ff79c6">$</span>fga.gamma.prior <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">mean</span>(variances<span style="color:#ff79c6">$</span>variances)^2<span style="color:#ff79c6">/</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">var</span>(variances<span style="color:#ff79c6">$</span>variances)<span style="color:#bd93f9">+2</span>
+</span></span><span style="display:flex;"><span>season.2022.priors<span style="color:#ff79c6">$</span>fga.phi.prior <span style="color:#ff79c6">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">mean</span>(variances<span style="color:#ff79c6">$</span>variances)<span style="color:#ff79c6">*</span>(<span style="color:#50fa7b">mean</span>(variances<span style="color:#ff79c6">$</span>variances)^2<span style="color:#ff79c6">/</span>
+</span></span><span style="display:flex;"><span>                                             <span style="color:#50fa7b">var</span>(variances<span style="color:#ff79c6">$</span>variances)<span style="color:#bd93f9">+1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#2023 Season we want to model</span>
+</span></span><span style="display:flex;"><span>season.2023 <span style="color:#ff79c6">&lt;-</span> season_results <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Season <span style="color:#ff79c6">%in%</span> <span style="color:#bd93f9">2023</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>season.2023 <span style="color:#ff79c6">&lt;-</span> <span style="color:#50fa7b">transform_data</span>(season.2023)
+</span></span></code></pre></div><h4 id="beta-posterior">Calculation of Beta Posterior for each $k$th Team</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#6272a4">#Calculate posteriors for FGP for the 2023 season</span>
+</span></span><span style="display:flex;"><span>season.2023.posteriors <span style="color:#ff79c6">=</span> season.2023 <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">left_join</span>(season.2022.priors, by<span style="color:#ff79c6">=</span><span style="color:#50fa7b">join_by</span>(TeamID)) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">group_by</span>(TeamID) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">summarize </span>(
+</span></span><span style="display:flex;"><span>    fgp.alpha.posterior <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sum</span>(FGM)<span style="color:#ff79c6">+</span><span style="color:#50fa7b">first</span>(fgp.alpha.prior),
+</span></span><span style="display:flex;"><span>    fgp.beta.posterior <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sum</span>(FGA)<span style="color:#ff79c6">-</span><span style="color:#50fa7b">sum</span>(FGM)<span style="color:#ff79c6">+</span><span style="color:#50fa7b">first</span>(fgp.beta.prior)
+</span></span><span style="display:flex;"><span>  )
+</span></span></code></pre></div><h4 id="gibbs">Gibbs Sampling to Approximate Joint Distribution $(\mu_k, \sigma^2_k)$</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#6272a4">#Gibbs Sampling Method to Define Posterior</span>
+</span></span><span style="display:flex;"><span>posterior.matrix <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">as.matrix</span>(
+</span></span><span style="display:flex;"><span>  season.2023.posteriors<span style="color:#50fa7b">[c</span>(<span style="color:#f1fa8c">&#34;fga.lambda.prior&#34;</span>, <span style="color:#f1fa8c">&#34;fga.tau.prior&#34;</span>,                                          
+</span></span><span style="display:flex;"><span>                           <span style="color:#f1fa8c">&#34;fga.gamma.prior&#34;</span>, <span style="color:#f1fa8c">&#34;fga.phi.prior&#34;</span>)])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>iterations <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">10000</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Matrices to store posterior distributions</span>
+</span></span><span style="display:flex;"><span>posterior.normal.matrix <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">matrix</span>(ncol<span style="color:#ff79c6">=</span>iterations, nrow<span style="color:#ff79c6">=</span><span style="color:#50fa7b">nrow</span>(posterior.matrix))
+</span></span><span style="display:flex;"><span>posterior.invgamma.matrix <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">matrix</span>(ncol<span style="color:#ff79c6">=</span>iterations, nrow<span style="color:#ff79c6">=</span><span style="color:#50fa7b">nrow</span>(posterior.matrix))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Calculate the Normal posterior distribution for each ith team via Gibbs sampling</span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">for</span>(i in <span style="color:#bd93f9">1</span><span style="color:#ff79c6">:</span><span style="color:#50fa7b">nrow</span>(posterior.matrix)){
+</span></span><span style="display:flex;"><span>  ith_team <span style="color:#ff79c6">=</span> posterior.matrix[i,]
+</span></span><span style="display:flex;"><span>  data_i <span style="color:#ff79c6">=</span> season.2023[season.2023<span style="color:#ff79c6">$</span>TeamID <span style="color:#ff79c6">==</span> 
+</span></span><span style="display:flex;"><span>                         <span style="color:#50fa7b">as.numeric</span>(season.2023.posteriors[i,<span style="color:#f1fa8c">&#34;TeamID&#34;</span>]), <span style="color:#f1fa8c">&#34;FGA&#34;</span>] <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">unlist</span>()
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Gibbs sampling algorithm</span>
+</span></span><span style="display:flex;"><span>  burn <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">100</span>
+</span></span><span style="display:flex;"><span>  iters <span style="color:#ff79c6">&lt;-</span> iterations <span style="color:#ff79c6">+</span> burn
+</span></span><span style="display:flex;"><span>  mu.save <span style="color:#ff79c6">&lt;-</span> <span style="color:#50fa7b">rep</span>(<span style="color:#bd93f9">0</span>, iters)
+</span></span><span style="display:flex;"><span>  mu.save <span style="color:#ff79c6">&lt;-</span> ith_team[<span style="color:#f1fa8c">&#34;fga.lambda.prior&#34;</span>]
+</span></span><span style="display:flex;"><span>  sigma2.save <span style="color:#ff79c6">&lt;-</span> <span style="color:#50fa7b">rep</span>(<span style="color:#bd93f9">0</span>, iters)
+</span></span><span style="display:flex;"><span>  sigma2 <span style="color:#ff79c6">=</span> ith_team[<span style="color:#f1fa8c">&#34;fga.phi.prior&#34;</span>]<span style="color:#ff79c6">/</span>(ith_team[<span style="color:#f1fa8c">&#34;fga.gamma.prior&#34;</span>]<span style="color:#bd93f9">-1</span>)
+</span></span><span style="display:flex;"><span>  sigma2.save[1] <span style="color:#ff79c6">=</span> sigma2
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  lambda <span style="color:#ff79c6">=</span> ith_team[<span style="color:#f1fa8c">&#34;fga.lambda.prior&#34;</span>]
+</span></span><span style="display:flex;"><span>  tau <span style="color:#ff79c6">=</span> ith_team[<span style="color:#f1fa8c">&#34;fga.tau.prior&#34;</span>]
+</span></span><span style="display:flex;"><span>  gamma <span style="color:#ff79c6">=</span> ith_team[<span style="color:#f1fa8c">&#34;fga.gamma.prior&#34;</span>]
+</span></span><span style="display:flex;"><span>  phi <span style="color:#ff79c6">=</span> ith_team[<span style="color:#f1fa8c">&#34;fga.phi.prior&#34;</span>]
+</span></span><span style="display:flex;"><span>  n <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">length</span>(data_i)
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">if</span>(<span style="color:#50fa7b">any</span>(<span style="color:#50fa7b">is.na</span>(ith_team))){
+</span></span><span style="display:flex;"><span>    posterior.normal.matrix[i,] <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rep</span>(<span style="color:#ff79c6">NA_real_</span>, iterations)
+</span></span><span style="display:flex;"><span>    posterior.invgamma.matrix[i,] <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rep</span>(<span style="color:#ff79c6">NA_real_</span>, iterations)
+</span></span><span style="display:flex;"><span>  } else {
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">for</span>(t in <span style="color:#bd93f9">2</span><span style="color:#ff79c6">:</span>iters){
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4">#Full conditional of mu</span>
+</span></span><span style="display:flex;"><span>      lambda.p <span style="color:#ff79c6">&lt;-</span> (tau^2<span style="color:#ff79c6">*</span><span style="color:#50fa7b">sum</span>(data_i) <span style="color:#ff79c6">+</span> sigma2<span style="color:#ff79c6">*</span>lambda)<span style="color:#ff79c6">/</span>(tau^2<span style="color:#ff79c6">*</span>n <span style="color:#ff79c6">+</span> sigma2)
+</span></span><span style="display:flex;"><span>      tau2.p <span style="color:#ff79c6">&lt;-</span> sigma2<span style="color:#ff79c6">*</span>tau^2<span style="color:#ff79c6">/</span>(tau^2<span style="color:#ff79c6">*</span>n <span style="color:#ff79c6">+</span> sigma2)
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4">#New value of mu</span>
+</span></span><span style="display:flex;"><span>      mu <span style="color:#ff79c6">&lt;-</span> <span style="color:#50fa7b">rnorm</span>(<span style="color:#bd93f9">1</span>, lambda.p, <span style="color:#50fa7b">sqrt</span>(tau2.p))
+</span></span><span style="display:flex;"><span>      mu.save[t] <span style="color:#ff79c6">&lt;-</span> mu
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4">#Full conditional of sigma2</span>
+</span></span><span style="display:flex;"><span>      gamma.p <span style="color:#ff79c6">&lt;-</span> gamma <span style="color:#ff79c6">+</span> <span style="color:#50fa7b">length</span>(data)<span style="color:#ff79c6">/</span><span style="color:#bd93f9">2</span>
+</span></span><span style="display:flex;"><span>      phi.p <span style="color:#ff79c6">&lt;-</span> phi <span style="color:#ff79c6">+</span> <span style="color:#50fa7b">sum</span>((data_i <span style="color:#ff79c6">-</span> mu)^2)<span style="color:#ff79c6">/</span><span style="color:#bd93f9">2</span>
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4">#New value of sigma2</span>
+</span></span><span style="display:flex;"><span>      sigma2 <span style="color:#ff79c6">&lt;-</span> <span style="color:#50fa7b">rinvgamma</span>(<span style="color:#bd93f9">1</span>, gamma.p, phi.p)
+</span></span><span style="display:flex;"><span>      sigma2.save[t] <span style="color:#ff79c6">&lt;-</span> sigma2
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    posterior.normal.matrix[i,] <span style="color:#ff79c6">=</span> mu.save[<span style="color:#ff79c6">-</span>(<span style="color:#bd93f9">1</span><span style="color:#ff79c6">:</span>burn)]
+</span></span><span style="display:flex;"><span>    posterior.invgamma.matrix[i,] <span style="color:#ff79c6">=</span> sigma2.save[<span style="color:#ff79c6">-</span>(<span style="color:#bd93f9">1</span><span style="color:#ff79c6">:</span>burn)]
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#print(i)</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="predictive">Posterior Predictive Computations to Approximate FGM</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>season.2023.posteriors<span style="color:#ff79c6">$</span>fga.mu.posterior <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rowMeans</span>(posterior.normal.matrix)
+</span></span><span style="display:flex;"><span>season.2023.posteriors<span style="color:#ff79c6">$</span>fga.sigma.posterior <span style="color:#ff79c6">=</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">sqrt</span>(<span style="color:#50fa7b">rowMeans</span>(posterior.invgamma.matrix))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>season.2023.posteriors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(<span style="color:#ff79c6">!</span><span style="color:#50fa7b">is.na</span>(fga.mu.posterior)) <span style="color:#ff79c6">-&gt;</span> season.2023.posteriors
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Monte Carlo Simulation to Simulate FGM</span>
+</span></span><span style="display:flex;"><span>posterior.fgm.matrix <span style="color:#ff79c6">=</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">matrix</span>(ncol<span style="color:#ff79c6">=</span>iterations, nrow<span style="color:#ff79c6">=</span><span style="color:#50fa7b">nrow</span>(season.2023.posteriors))
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">for</span>(i in <span style="color:#bd93f9">1</span><span style="color:#ff79c6">:</span><span style="color:#50fa7b">nrow</span>(season.2023.posteriors)){
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Randomly sample from p from the posterior beta distribution on </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Field Goal Percentage</span>
+</span></span><span style="display:flex;"><span>  p <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rbeta</span>(iterations, 
+</span></span><span style="display:flex;"><span>            <span style="color:#50fa7b">as.numeric</span>(season.2023.posteriors[i, <span style="color:#f1fa8c">&#34;fgp.alpha.posterior&#34;</span>]), 
+</span></span><span style="display:flex;"><span>            <span style="color:#50fa7b">as.numeric</span>(season.2023.posteriors[i, <span style="color:#f1fa8c">&#34;fgp.beta.posterior&#34;</span>]))
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Calculate distribution of mean FGM by multiplying p by a random sample of FGA by </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#team i</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Randomly sample from the joint distribution of mu and sigma^2</span>
+</span></span><span style="display:flex;"><span>  f <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rnorm</span>(iterations, posterior.normal.matrix[i,], 
+</span></span><span style="display:flex;"><span>            <span style="color:#50fa7b">sqrt</span>(posterior.invgamma.matrix[i,]))
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  posterior.fgm.matrix[i,] <span style="color:#ff79c6">=</span> p<span style="color:#ff79c6">*</span>f
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="a0">A.0</h4>
+<p>The distribution of FGA is approximately Normal</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#50fa7b">hist</span>(season.2022<span style="color:#ff79c6">$</span>FGA, main<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;Distribution of 2022 FGA&#34;</span>, xlab<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;FGA&#34;</span>)
+</span></span></code></pre></div><p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-15-1.png" alt="">
+
+</p>
+<h4 id="simulation">A.1</h4>
+<p>Simulation of NCAA Tournament Using our Predictive Posterior Bernoulli
+Model</p>
+<p><strong>Clean Tournament Data</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>tourney_results<span style="color:#50fa7b">[c</span>(<span style="color:#f1fa8c">&#34;SEED&#34;</span>, <span style="color:#f1fa8c">&#34;TEAM...3&#34;</span>)] <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">setNames</span>(<span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Seed&#34;</span>, <span style="color:#f1fa8c">&#34;TeamName&#34;</span>)) <span style="color:#ff79c6">-&gt;</span> tourney_results
+</span></span><span style="display:flex;"><span>clean_team_names <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">function</span>(t){
+</span></span><span style="display:flex;"><span>  t<span style="color:#ff79c6">$</span>TeamName <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">sapply</span>(t<span style="color:#ff79c6">$</span>TeamName, <span style="color:#50fa7b">function</span>(x){
+</span></span><span style="display:flex;"><span>    x <span style="color:#ff79c6">=</span> x <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">str_replace</span>(<span style="color:#f1fa8c">&#34;[.]&#34;</span>, <span style="color:#f1fa8c">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>    x <span style="color:#ff79c6">=</span> x <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">str_replace</span>(<span style="color:#f1fa8c">&#34;Florida&#34;</span>, <span style="color:#f1fa8c">&#34;FL&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Saint Mary&#39;s&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;St Mary&#39;s CA&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;College of Charleston&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Col Charleston&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Louisiana Lafayette&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Lafayette&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Fairleigh Dickinson&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;F Dickinson&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Northern Kentucky&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;N Kentucky&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Southeast Missouri St&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;SE Missouri St&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Texas A&amp;M Corpus Chris&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;TAM C. Christi&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Texas Southern&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;TX Southern&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Montana St&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Montana St&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Kennesaw St&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Kennesaw&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;Kent St&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Kent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(x <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;North Carolina St&#34;</span>)x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;NC State&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">return</span>(x)
+</span></span><span style="display:flex;"><span>  })
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">return</span>(t)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>tourney_results <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">clean_team_names</span>(tourney_results)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tourney_results <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">left_join</span>(teams<span style="color:#50fa7b">[c</span>(<span style="color:#f1fa8c">&#34;TeamID&#34;</span>, <span style="color:#f1fa8c">&#34;TeamName&#34;</span>)]) <span style="color:#ff79c6">-&gt;</span> tourney_results
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Omit the first four</span>
+</span></span><span style="display:flex;"><span>tourney_results <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(<span style="color:#ff79c6">!</span>TeamName <span style="color:#ff79c6">%in%</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;TX Southern&#34;</span>, <span style="color:#f1fa8c">&#34;Nevada&#34;</span>,
+</span></span><span style="display:flex;"><span>                          <span style="color:#f1fa8c">&#34;Mississippi St&#34;</span>, <span style="color:#f1fa8c">&#34;SE Missouri St&#34;</span>)) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">distinct</span>() <span style="color:#ff79c6">-&gt;</span> tourney_results
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tourney_results<span style="color:#ff79c6">$</span>Region <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rep</span>(<span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;E&#34;</span>, <span style="color:#f1fa8c">&#34;S&#34;</span>, <span style="color:#f1fa8c">&#34;W&#34;</span>, <span style="color:#f1fa8c">&#34;M&#34;</span>), each<span style="color:#ff79c6">=</span><span style="color:#bd93f9">2</span>, times<span style="color:#ff79c6">=</span><span style="color:#bd93f9">8</span>)
+</span></span></code></pre></div><p><strong>Simulation</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#6272a4">#2023 Tournament Simulation</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>regions <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;E&#34;</span>, <span style="color:#f1fa8c">&#34;S&#34;</span>, <span style="color:#f1fa8c">&#34;W&#34;</span>, <span style="color:#f1fa8c">&#34;M&#34;</span>)
+</span></span><span style="display:flex;"><span>tourney_results <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">group_by</span>(Region) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">mutate</span>(
+</span></span><span style="display:flex;"><span>    Order <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rep</span>(<span style="color:#ff79c6">LETTERS</span>[1<span style="color:#ff79c6">:</span>(<span style="color:#50fa7b">n</span>()<span style="color:#ff79c6">/</span><span style="color:#bd93f9">2</span>)], each<span style="color:#ff79c6">=</span><span style="color:#bd93f9">2</span>)
+</span></span><span style="display:flex;"><span>  ) <span style="color:#ff79c6">-&gt;</span> tourney_results
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>matchups <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">tibble</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>compare_teams <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">function</span>(k, l, alpha<span style="color:#ff79c6">=</span><span style="color:#bd93f9">0.25</span>){
+</span></span><span style="display:flex;"><span>  k <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">which</span>(season.2023.posteriors<span style="color:#ff79c6">$</span>TeamID <span style="color:#ff79c6">==</span> k)
+</span></span><span style="display:flex;"><span>  l <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">which</span>(season.2023.posteriors<span style="color:#ff79c6">$</span>TeamID <span style="color:#ff79c6">==</span> l)
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">list</span>(
+</span></span><span style="display:flex;"><span>    p <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">mean</span>(posterior.fgm.matrix[k,] <span style="color:#ff79c6">&gt;</span> posterior.fgm.matrix[l,]),
+</span></span><span style="display:flex;"><span>    q <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">quantile</span>(posterior.fgm.matrix[k,] <span style="color:#ff79c6">-</span> posterior.fgm.matrix[l,], alpha)
+</span></span><span style="display:flex;"><span>  )
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tourney_results<span style="color:#ff79c6">$</span>Round <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">for</span>(round in <span style="color:#bd93f9">1</span><span style="color:#ff79c6">:</span><span style="color:#bd93f9">4</span>){
+</span></span><span style="display:flex;"><span> <span style="color:#50fa7b">for</span>(region in regions){
+</span></span><span style="display:flex;"><span>    t <span style="color:#ff79c6">=</span> tourney_results
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(round <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">1</span>)t <span style="color:#ff79c6">=</span> matchups
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(round <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">5</span>){
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4">#These are all the regional matches</span>
+</span></span><span style="display:flex;"><span>      region.subset <span style="color:#ff79c6">=</span> t <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#50fa7b">filter</span>(Region <span style="color:#ff79c6">==</span> region <span style="color:#ff79c6">&amp;</span> Round <span style="color:#ff79c6">==</span> round) 
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    region.subset<span style="color:#ff79c6">$</span>p <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">NA_real_</span>
+</span></span><span style="display:flex;"><span>    region.subset<span style="color:#ff79c6">$</span>alpha.probability <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">NA_real_</span>
+</span></span><span style="display:flex;"><span>    region.subset<span style="color:#ff79c6">$</span>Round <span style="color:#ff79c6">=</span> round<span style="color:#bd93f9">+1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(round <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">1</span>){
+</span></span><span style="display:flex;"><span>      half <span style="color:#ff79c6">=</span> region.subset<span style="color:#ff79c6">$</span>Order[1<span style="color:#ff79c6">:</span>(<span style="color:#50fa7b">length</span>(region.subset<span style="color:#ff79c6">$</span>Order)<span style="color:#ff79c6">/</span><span style="color:#bd93f9">2</span>)]
+</span></span><span style="display:flex;"><span>      region.subset<span style="color:#ff79c6">$</span>Order <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(half, <span style="color:#50fa7b">rev</span>(half))
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span>      matchups[matchups<span style="color:#ff79c6">$</span>Region <span style="color:#ff79c6">==</span> region <span style="color:#ff79c6">&amp;</span> matchups<span style="color:#ff79c6">$</span>Round <span style="color:#ff79c6">==</span> round,
+</span></span><span style="display:flex;"><span>               ]<span style="color:#ff79c6">$</span>Order <span style="color:#ff79c6">=</span><span style="color:#50fa7b">c</span>(half, <span style="color:#50fa7b">rev</span>(half))
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    region.subset <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>      <span style="color:#50fa7b">arrange</span>(Order) <span style="color:#ff79c6">-&gt;</span> region.subset
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#6272a4">#Loop through every game</span>
+</span></span><span style="display:flex;"><span>    i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">while</span>(i <span style="color:#ff79c6">&lt;</span> <span style="color:#50fa7b">nrow</span>(region.subset)){
+</span></span><span style="display:flex;"><span>      p <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">compare_teams</span>(region.subset[i,]<span style="color:#ff79c6">$</span>TeamID,
+</span></span><span style="display:flex;"><span>                        region.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>TeamID)[[<span style="color:#f1fa8c">&#34;p&#34;</span>]]
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4">#Predictive probability distribution is a Bernoulli Distribution</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#50fa7b">if</span>(p <span style="color:#ff79c6">&gt;</span> (<span style="color:#bd93f9">1</span><span style="color:#ff79c6">-</span>p)){
+</span></span><span style="display:flex;"><span>        region.subset[i,]<span style="color:#ff79c6">$</span>p <span style="color:#ff79c6">=</span> p
+</span></span><span style="display:flex;"><span>        region.subset[i,]<span style="color:#ff79c6">$</span>alpha.probability <span style="color:#ff79c6">=</span> 
+</span></span><span style="display:flex;"><span>          <span style="color:#50fa7b">compare_teams</span>(region.subset[i,]<span style="color:#ff79c6">$</span>TeamID,
+</span></span><span style="display:flex;"><span>                region.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>TeamID)[[<span style="color:#f1fa8c">&#34;q&#34;</span>]] <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">as.vector</span>() <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">0</span>
+</span></span><span style="display:flex;"><span>        matchups <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rbind</span>(matchups, region.subset[i,])
+</span></span><span style="display:flex;"><span>      } else {
+</span></span><span style="display:flex;"><span>        region.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>p <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span><span style="color:#ff79c6">-</span>p
+</span></span><span style="display:flex;"><span>        region.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>alpha.probability <span style="color:#ff79c6">=</span> 
+</span></span><span style="display:flex;"><span>          <span style="color:#50fa7b">compare_teams</span>(region.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>TeamID,
+</span></span><span style="display:flex;"><span>                region.subset[i,]<span style="color:#ff79c6">$</span>TeamID)[[<span style="color:#f1fa8c">&#34;q&#34;</span>]] <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">as.vector</span>() <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">0</span>
+</span></span><span style="display:flex;"><span>        matchups <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rbind</span>(matchups, region.subset[i<span style="color:#bd93f9">+1</span>,])
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>      i <span style="color:#ff79c6">=</span> i <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">2</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#Final Four and Championship</span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">for</span>(round in <span style="color:#bd93f9">5</span><span style="color:#ff79c6">:</span><span style="color:#bd93f9">6</span>){
+</span></span><span style="display:flex;"><span>  t.subset <span style="color:#ff79c6">=</span> matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> round)
+</span></span><span style="display:flex;"><span>  t.subset<span style="color:#ff79c6">$</span>Round <span style="color:#ff79c6">=</span> round<span style="color:#bd93f9">+1</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4">#Loop through every game</span>
+</span></span><span style="display:flex;"><span>  i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">while</span>(i <span style="color:#ff79c6">&lt;</span> <span style="color:#50fa7b">nrow</span>(t.subset)){
+</span></span><span style="display:flex;"><span>    p <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">compare_teams</span>(t.subset[i,]<span style="color:#ff79c6">$</span>TeamID,
+</span></span><span style="display:flex;"><span>                      t.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>TeamID)[[<span style="color:#f1fa8c">&#34;p&#34;</span>]]
+</span></span><span style="display:flex;"><span>    <span style="color:#6272a4">#Predictive probability distribution is a Bernoulli Distribution</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#50fa7b">if</span>(p <span style="color:#ff79c6">&gt;</span> (<span style="color:#bd93f9">1</span><span style="color:#ff79c6">-</span>p)){
+</span></span><span style="display:flex;"><span>      t.subset[i,]<span style="color:#ff79c6">$</span>p <span style="color:#ff79c6">=</span> p
+</span></span><span style="display:flex;"><span>      t.subset[i,]<span style="color:#ff79c6">$</span>alpha.probability <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">compare_teams</span>(t.subset[i,]<span style="color:#ff79c6">$</span>TeamID,
+</span></span><span style="display:flex;"><span>              t.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>TeamID)[[<span style="color:#f1fa8c">&#34;q&#34;</span>]] <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">as.vector</span>() <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">0</span>      
+</span></span><span style="display:flex;"><span>      matchups <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rbind</span>(matchups, t.subset[i,])
+</span></span><span style="display:flex;"><span>    } else {
+</span></span><span style="display:flex;"><span>      t.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>p <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span><span style="color:#ff79c6">-</span>p
+</span></span><span style="display:flex;"><span>      t.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>alpha.probability <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">compare_teams</span>(t.subset[i<span style="color:#bd93f9">+1</span>,]<span style="color:#ff79c6">$</span>TeamID,
+</span></span><span style="display:flex;"><span>              t.subset[i,]<span style="color:#ff79c6">$</span>TeamID)[[<span style="color:#f1fa8c">&#34;q&#34;</span>]] <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">as.vector</span>() <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">0</span>
+</span></span><span style="display:flex;"><span>      matchups <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">rbind</span>(matchups, t.subset[i<span style="color:#bd93f9">+1</span>,])
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    i <span style="color:#ff79c6">=</span> i <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">2</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The column <em>p</em> indicates the predictive posterior probability of how
+likely that team was to make more field goals than their opposing team
+in the previous round.</p>
+<p><strong>First Round Match-ups</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Alabama</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">16</td>
+<td style="text-align:left">TAM C. Christi</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Purdue</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">16</td>
+<td style="text-align:left">F Dickinson</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Houston</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">16</td>
+<td style="text-align:left">N Kentucky</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Kansas</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">16</td>
+<td style="text-align:left">Howard</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Arizona</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">15</td>
+<td style="text-align:left">Princeton</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Marquette</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">15</td>
+<td style="text-align:left">Vermont</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Texas</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">15</td>
+<td style="text-align:left">Colgate</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">UCLA</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">15</td>
+<td style="text-align:left">UNC Asheville</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Baylor</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:left">UC Santa Barbara</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Kansas St</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:left">Montana St</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Xavier</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:left">Kennesaw</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:left">Grand Canyon</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:left">Virginia</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Furman</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:left">Tennessee</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Lafayette</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:left">Indiana</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Kent</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:left">Connecticut</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Iona</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">San Diego St</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Col Charleston</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">Duke</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Oral Roberts</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">Miami FL</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Drake</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">St Mary’s CA</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">VCU</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">Creighton</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">NC State</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">Kentucky</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">Providence</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">Iowa St</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">Pittsburgh</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">TCU</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">Arizona St</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">7</td>
+<td style="text-align:left">Missouri</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">Utah St</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">7</td>
+<td style="text-align:left">Michigan St</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">USC</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">7</td>
+<td style="text-align:left">Texas A&amp;M</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">Penn St</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">7</td>
+<td style="text-align:left">Northwestern</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">Boise St</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Maryland</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:left">West Virginia</td>
+<td style="text-align:left">E</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Memphis</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:left">FL Atlantic</td>
+<td style="text-align:left">S</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Iowa</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:left">Auburn</td>
+<td style="text-align:left">W</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Arkansas</td>
+<td style="text-align:left">M</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:left">Illinois</td>
+<td style="text-align:left">M</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Second Round Match-ups</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(Seed, TeamName, Region, p, Round, Order) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">arrange</span>(Round, Order) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Order) <span style="color:#ff79c6">-&gt;</span> matchups
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">2</span>) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Round) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  knitr<span style="color:#ff79c6">::</span><span style="color:#50fa7b">kable</span>()
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+<th style="text-align:right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Alabama</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5463</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:left">West Virginia</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5741</td>
+</tr>
+<tr>
+<td style="text-align:right">16</td>
+<td style="text-align:left">F Dickinson</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.6319</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Memphis</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5395</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Houston</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.6940</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Iowa</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.6611</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Kansas</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5793</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Arkansas</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5287</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Arizona</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.6650</td>
+</tr>
+<tr>
+<td style="text-align:right">7</td>
+<td style="text-align:left">Missouri</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5963</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Marquette</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.7010</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">USC</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5102</td>
+</tr>
+<tr>
+<td style="text-align:right">15</td>
+<td style="text-align:left">Colgate</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5908</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">Penn St</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.6472</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">UCLA</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6667</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:left">Boise St</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6250</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:left">UC Santa Barbara</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5334</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">NC State</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5978</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Kansas St</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.6445</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">Kentucky</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5014</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Xavier</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.7242</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">Pittsburgh</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5383</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.8343</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">TCU</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6458</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Furman</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.7374</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Col Charleston</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.6592</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:left">Tennessee</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.7020</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Oral Roberts</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.7232</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:left">Indiana</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5917</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">Miami FL</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.6338</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Iona</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5234</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">St Mary’s CA</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5445</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sweet 16</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">3</span>) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Round) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  knitr<span style="color:#ff79c6">::</span><span style="color:#50fa7b">kable</span>()
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+<th style="text-align:right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Alabama</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.6000</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Furman</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5296</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Memphis</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5561</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Oral Roberts</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.7526</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:left">Iowa</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5611</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">Miami FL</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5291</td>
+</tr>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:left">Kansas</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5290</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Iona</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6243</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Arizona</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5554</td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td style="text-align:left">NC State</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.6550</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Marquette</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.7107</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:left">Kentucky</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5815</td>
+</tr>
+<tr>
+<td style="text-align:right">15</td>
+<td style="text-align:left">Colgate</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.7102</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Xavier</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.7134</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">UCLA</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6438</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.7171</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Elite 8</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">4</span>) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Round) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  knitr<span style="color:#ff79c6">::</span><span style="color:#50fa7b">kable</span>()
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+<th style="text-align:right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Furman</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5116</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Arizona</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5208</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Oral Roberts</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5673</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Marquette</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.6179</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td style="text-align:left">Miami FL</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5212</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Xavier</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5259</td>
+</tr>
+<tr>
+<td style="text-align:right">13</td>
+<td style="text-align:left">Iona</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5220</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.7076</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Final Four</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">5</span>) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Round) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  knitr<span style="color:#ff79c6">::</span><span style="color:#50fa7b">kable</span>()
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+<th style="text-align:right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:left">Arizona</td>
+<td style="text-align:left">E</td>
+<td style="text-align:right">0.5805</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Oral Roberts</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5150</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Xavier</td>
+<td style="text-align:left">W</td>
+<td style="text-align:right">0.5683</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6920</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Championship</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">6</span>) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Round) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  knitr<span style="color:#ff79c6">::</span><span style="color:#50fa7b">kable</span>()
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+<th style="text-align:right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:left">Oral Roberts</td>
+<td style="text-align:left">S</td>
+<td style="text-align:right">0.5272</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.5959</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Champion</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>matchups <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(Round <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">7</span>) <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">select</span>(<span style="color:#ff79c6">-</span>Round) <span style="color:#ff79c6">%&gt;%</span>
+</span></span><span style="display:flex;"><span>  knitr<span style="color:#ff79c6">::</span><span style="color:#50fa7b">kable</span>()
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th style="text-align:right">Seed</th>
+<th style="text-align:left">TeamName</th>
+<th style="text-align:left">Region</th>
+<th style="text-align:right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">3</td>
+<td style="text-align:left">Gonzaga</td>
+<td style="text-align:left">M</td>
+<td style="text-align:right">0.6083</td>
+</tr>
+</tbody>
+</table>
+<h4 id="a2">A.2</h4>
+<p>Prior distribution for FGP</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>k <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1211</span> <span style="color:#6272a4">#Gonzaga</span>
+</span></span><span style="display:flex;"><span>l <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1331</span> <span style="color:#6272a4">#Oral Roberts</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>k.alpha <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.alpha.prior)
+</span></span><span style="display:flex;"><span>k.beta <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.beta.prior)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>l.alpha <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.alpha.prior)
+</span></span><span style="display:flex;"><span>l.beta <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.beta.prior)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">ggplot</span>(data <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">data.frame</span>(x <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#bd93f9">0</span>, <span style="color:#bd93f9">1</span>)), <span style="color:#50fa7b">aes</span>(x)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dbeta, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(shape1 <span style="color:#ff79c6">=</span> k.alpha, shape2 <span style="color:#ff79c6">=</span> k.beta),
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Gonzaga&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dbeta, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(shape1 <span style="color:#ff79c6">=</span> l.alpha, shape2 <span style="color:#ff79c6">=</span>l.beta), 
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span>), show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ylab</span>(<span style="color:#50fa7b">expression</span>(<span style="color:#50fa7b">pi</span>(FGP[k]))) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">xlab</span>(<span style="color:#50fa7b">expression</span>(FGP[k])) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ggtitle</span>(<span style="color:#f1fa8c">&#34;Prior Distributions&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme_minimal</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">labs</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Distribution&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">scale_color_manual</span>(
+</span></span><span style="display:flex;"><span>    values <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Gonzaga&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;steelblue&#34;</span>, <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;coral&#34;</span>)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme</span>(legend.position <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;top&#34;</span>)
+</span></span></code></pre></div><p>Prior parameters were chosen such that for each $k$th team, $\beta_k$
+was chosen as 1 to reflect our uncertainty and $\alpha_k$ was chosen
+such that $\frac{\alpha_k}{\alpha_k+\beta_k}=\hat{p}$ where $\hat{p}$
+was chosen as the mean of $\text{FGP}_{ik}$ from the 2022 NCAA season.</p>
+<p>$\text{FGP}_\text{Gonzaga}\sim \text{Beta}$(1026.1155142, 939)
+$\quad \text{FGP}_\text{Oral Roberts}\sim \text{Beta}$(1026.1155142,
+939)</p>
+<h4 id="posterior-distribution">Posterior Distribution</h4>
+<p>$\text{FGP}_k|\text{Data}_{k} \sim \text{Beta}(\alpha_k, \beta_k) \quad \forall k \in \text{Teams}$</p>
+<p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-26-1.png" alt="">
+
+</p>
+<p>We estimated the following the posterior distributions for their Field
+Goal Percentage:</p>
+<p>$\text{FGP}_\text{Gonzaga}|\text{Data}_\text{Gonzaga} \sim \text{Beta}(1026.116, 939)$</p>
+<p>$\text{FGP}_\text{Oral Roberts}|\text{Data}_\text{Oral Roberts} \sim \text{Beta}(896.829, 988)$</p>
+<p>Hence,</p>
+<p>$E(\text{FGP}_\text{Gonzaga}|\text{Data}_\text{Gonzaga})=0.522$</p>
+<p>$E(\text{FGP}_\text{Oral Roberts}|\text{Data}_\text{Oral Roberts})=0.476$</p>
+<p>$V(\text{FGP}_\text{Gonzaga}|\text{Data}_\text{Gonzaga})$=1.2690439^{-4}</p>
+<p>$V(\text{FGP}_\text{Oral Roberts}|\text{Data}_\text{Oral Roberts})$=1.3225751^{-4}</p>
+<h4 id="a3">A.3</h4>
+<p>Prior Distribution for FGA</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>k <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1211</span> <span style="color:#6272a4">#Gonzaga</span>
+</span></span><span style="display:flex;"><span>l <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1331</span> <span style="color:#6272a4">#Oral Roberts</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>k.lambda <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.lambda.prior)
+</span></span><span style="display:flex;"><span>k.tau <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.tau.prior)
+</span></span><span style="display:flex;"><span>k.gamma <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.gamma.prior)
+</span></span><span style="display:flex;"><span>k.phi <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.phi.prior)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>l.lambda <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.lambda.prior)
+</span></span><span style="display:flex;"><span>l.tau <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.tau.prior)
+</span></span><span style="display:flex;"><span>l.gamma <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.gamma.prior)
+</span></span><span style="display:flex;"><span>l.phi <span style="color:#ff79c6">=</span> season.2022.priors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fga.phi.prior)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mu.plot<span style="color:#ff79c6">=</span><span style="color:#50fa7b">ggplot</span>(data <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">data.frame</span>(x <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#bd93f9">0</span>, <span style="color:#bd93f9">100</span>)), <span style="color:#50fa7b">aes</span>(x)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dnorm, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(mean <span style="color:#ff79c6">=</span> k.lambda, sd <span style="color:#ff79c6">=</span> k.tau),
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Gonzaga&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dnorm, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(mean <span style="color:#ff79c6">=</span> l.lambda, sd <span style="color:#ff79c6">=</span> l.tau),
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T)<span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ylab</span>(<span style="color:#50fa7b">expression</span>(<span style="color:#50fa7b">pi</span>(mu[k]))) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">xlab</span>(<span style="color:#50fa7b">expression</span>(mu[k])) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ggtitle</span>(<span style="color:#f1fa8c">&#34;Prior Distributions for &#34;</span><span style="color:#ff79c6">~</span>mu[k]) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme_minimal</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">labs</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Distribution&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">scale_color_manual</span>(
+</span></span><span style="display:flex;"><span>    values <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Gonzaga&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;steelblue&#34;</span>, <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;coral&#34;</span>)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme</span>(legend.position <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;top&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sigma2.plot <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">ggplot</span>(data <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">data.frame</span>(x <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#bd93f9">0</span>, <span style="color:#bd93f9">100</span>)), <span style="color:#50fa7b">aes</span>(x)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dinvgamma, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(shape <span style="color:#ff79c6">=</span> k.gamma, rate <span style="color:#ff79c6">=</span> k.phi),
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Gonzaga&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dinvgamma, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(shape <span style="color:#ff79c6">=</span> l.gamma, rate <span style="color:#ff79c6">=</span> l.phi),
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ylab</span>(<span style="color:#50fa7b">expression</span>(<span style="color:#50fa7b">pi</span>(sigma[k]^2))) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">xlab</span>(<span style="color:#50fa7b">expression</span>(sigma[k]^2)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ggtitle</span>(<span style="color:#f1fa8c">&#34;Prior Distributions for &#34;</span><span style="color:#ff79c6">~</span>sigma[k]^2) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme_minimal</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">labs</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Distribution&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">scale_color_manual</span>(
+</span></span><span style="display:flex;"><span>    values <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Gonzaga&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;steelblue&#34;</span>, <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;coral&#34;</span>)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme</span>(legend.position <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;top&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">grid.arrange</span>(mu.plot, sigma2.plot, ncol<span style="color:#ff79c6">=</span><span style="color:#bd93f9">2</span>)
+</span></span></code></pre></div><p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-27-1.png" alt="">
+
+</p>
+<h4 id="a4">A.4</h4>
+<p>A. Llera, C. F. Beckmann., “Estimating an Inverse Gamma Distribution”
+(<a href="https://arxiv.org/pdf/1605.01019.pdf">https://arxiv.org/pdf/1605.01019.pdf</a>)</p>
+<h4 id="a5">A.5</h4>
+<p>Posterior Distribution for FGP</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>k <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1211</span> <span style="color:#6272a4">#Gonzaga</span>
+</span></span><span style="display:flex;"><span>l <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1331</span> <span style="color:#6272a4">#Oral Roberts</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>k.alpha <span style="color:#ff79c6">=</span> season.2023.posteriors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.alpha.posterior)
+</span></span><span style="display:flex;"><span>k.beta <span style="color:#ff79c6">=</span> season.2023.posteriors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> k) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.beta.posterior)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>l.alpha <span style="color:#ff79c6">=</span> season.2023.posteriors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.alpha.posterior)
+</span></span><span style="display:flex;"><span>l.beta <span style="color:#ff79c6">=</span> season.2023.posteriors <span style="color:#ff79c6">%&gt;%</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">filter</span>(TeamID <span style="color:#ff79c6">==</span> l) <span style="color:#ff79c6">%&gt;%</span> <span style="color:#50fa7b">pull</span>(fgp.beta.posterior)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">ggplot</span>(data <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">data.frame</span>(x <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#bd93f9">0.25</span>, <span style="color:#bd93f9">0.75</span>)), <span style="color:#50fa7b">aes</span>(x)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dbeta, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(shape1 <span style="color:#ff79c6">=</span> k.alpha, shape2 <span style="color:#ff79c6">=</span> k.beta),
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Gonzaga&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">stat_function</span>(fun <span style="color:#ff79c6">=</span> dbeta, n <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1001</span>, 
+</span></span><span style="display:flex;"><span>                args <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">list</span>(shape1 <span style="color:#ff79c6">=</span> l.alpha, shape2 <span style="color:#ff79c6">=</span>l.beta), 
+</span></span><span style="display:flex;"><span>                <span style="color:#50fa7b">aes</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span>), show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ylab</span>(<span style="color:#50fa7b">expression</span>(<span style="color:#50fa7b">pi</span>(FGP[k]<span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;|&#34;</span><span style="color:#ff79c6">~</span>Data[k]))) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">xlab</span>(<span style="color:#50fa7b">expression</span>(FGP[k]<span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;|&#34;</span><span style="color:#ff79c6">~</span>Data[k])) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ggtitle</span>(<span style="color:#f1fa8c">&#34;Posterior Distributions&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme_minimal</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">labs</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Distribution&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">scale_color_manual</span>(
+</span></span><span style="display:flex;"><span>    values <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Gonzaga&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;steelblue&#34;</span>, <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;coral&#34;</span>)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme</span>(legend.position <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;top&#34;</span>)
+</span></span></code></pre></div><p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-28-1.png" alt="">
+
+</p>
+<h4 id="a6">A.6</h4>
+<p>Joint Posterior Distribution for FGA Approximated using Gibbs Sampling</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>k <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1211</span> <span style="color:#6272a4">#Gonzaga</span>
+</span></span><span style="display:flex;"><span>l <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1331</span> <span style="color:#6272a4">#Oral Roberts</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>k <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">which</span>(season.2023.posteriors<span style="color:#ff79c6">$</span>TeamID <span style="color:#ff79c6">==</span> k)
+</span></span><span style="display:flex;"><span>l <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">which</span>(season.2023.posteriors<span style="color:#ff79c6">$</span>TeamID <span style="color:#ff79c6">==</span> l)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>k.mu <span style="color:#ff79c6">=</span> posterior.normal.matrix[k,]
+</span></span><span style="display:flex;"><span>k.sigma2 <span style="color:#ff79c6">=</span> posterior.invgamma.matrix[k,]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>l.mu <span style="color:#ff79c6">=</span> posterior.normal.matrix[l,]
+</span></span><span style="display:flex;"><span>l.sigma2 <span style="color:#ff79c6">=</span> posterior.invgamma.matrix[l,]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mu.plot<span style="color:#ff79c6">=</span><span style="color:#50fa7b">ggplot</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">geom_density</span>(<span style="color:#50fa7b">aes</span>(x<span style="color:#ff79c6">=</span>k.mu, color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Gonzaga&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">geom_density</span>(<span style="color:#50fa7b">aes</span>(x<span style="color:#ff79c6">=</span>l.mu, color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span>), show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ylab</span>(<span style="color:#50fa7b">expression</span>(<span style="color:#50fa7b">pi</span>(mu[k]<span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;|&#34;</span><span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;Data&#34;</span>[k]))) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">xlab</span>(<span style="color:#50fa7b">expression</span>(mu[k]<span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;|&#34;</span><span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;Data&#34;</span>[k])) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ggtitle</span>(<span style="color:#f1fa8c">&#34;Posterior Distributions for &#34;</span><span style="color:#ff79c6">~</span>mu[k]) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme_minimal</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">labs</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Distribution&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">scale_color_manual</span>(
+</span></span><span style="display:flex;"><span>    values <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Gonzaga&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;steelblue&#34;</span>, <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;coral&#34;</span>)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme</span>(legend.position <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;top&#34;</span>)
+</span></span><span style="display:flex;"><span>sigma2.plot <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">ggplot</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">geom_density</span>(<span style="color:#50fa7b">aes</span>(x<span style="color:#ff79c6">=</span>k.sigma2, color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Gonzaga&#34;</span>), 
+</span></span><span style="display:flex;"><span>                show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">geom_density</span>(<span style="color:#50fa7b">aes</span>(x<span style="color:#ff79c6">=</span>l.sigma2, color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span>), show.legend<span style="color:#ff79c6">=</span>T) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ylab</span>(<span style="color:#50fa7b">expression</span>(<span style="color:#50fa7b">pi</span>(sigma[k]^2<span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;|&#34;</span><span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;Data&#34;</span>[k]))) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">xlab</span>(<span style="color:#50fa7b">expression</span>(sigma[k]^2<span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;|&#34;</span><span style="color:#ff79c6">~</span><span style="color:#f1fa8c">&#34;Data&#34;</span>[k])) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">ggtitle</span>(<span style="color:#f1fa8c">&#34;Posterior Distributions for &#34;</span><span style="color:#ff79c6">~</span>sigma[k]^2) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme_minimal</span>() <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">labs</span>(color <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Distribution&#34;</span>) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">scale_color_manual</span>(
+</span></span><span style="display:flex;"><span>    values <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">c</span>(<span style="color:#f1fa8c">&#34;Gonzaga&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;steelblue&#34;</span>, <span style="color:#f1fa8c">&#34;Oral Roberts&#34;</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;coral&#34;</span>)) <span style="color:#ff79c6">+</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">theme</span>(legend.position <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;top&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">grid.arrange</span>(mu.plot, sigma2.plot, ncol<span style="color:#ff79c6">=</span><span style="color:#bd93f9">2</span>)
+</span></span></code></pre></div><p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-29-1.png" alt="">
+
+</p>
+<h4 id="a7">A.7</h4>
+<p>Posterior Predictive Distribution on FGM</p>
+<p>
+  <img src="/img/MarchMadness/Project_files/figure-commonmark/unnamed-chunk-30-1.png" alt="">
+
+</p>
+<h4 id="interval">A.8</h4>
+<p>95% Credible Interval for a Difference in FGM for Gonzaga and Oral
+Roberts</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>ci <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">quantile</span>(posterior.fgm.matrix[k,] <span style="color:#ff79c6">-</span> posterior.fgm.matrix[l,], <span style="color:#50fa7b">c</span>(<span style="color:#bd93f9">0.025</span>, <span style="color:#bd93f9">0.975</span>))
+</span></span><span style="display:flex;"><span>ci
+</span></span></code></pre></div><pre><code>     2.5%     97.5% 
+-13.27108  17.62791 </code></pre>
+
+
+                
+
+                
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2023/12/16/byu-traffic-citations-eda/" data-toggle="tooltip" data-placement="top" title="University Traffic Fines: Trends in Weather &amp; Air Quality - EDA">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                </ul>
+                
+
+                
+
+
+
+            </div>
+
+            
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/data-science" title="data-science">
+                            data-science
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/eda" title="eda">
+                            eda
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">                  
+                    
+                    <li>
+                        <a href="mailto:samlee.byu@gmail.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
+                    
+                    
+                    
+                    
+
+		            
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/SamLeeBYU">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		            
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://www.linkedin.com/in/SamLeeBYU">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		           
+                    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+           
+             </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; Everyday Statistics 2023
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite">CleanWhite Hugo Theme</a> by <a href="https://zhaohuabing.com">Huabing</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=zhaohuabing&repo=hugo-theme-cleanwhite&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function loadAsync(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        loadAsync("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    loadAsync("https://cdn.jsdelivr.net/npm/fastclick@1.0.6/lib/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        
+        
+        
+        
+            _containerSelector = 'div.post-container'
+        
+
+        
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        
+        $(selector).html('')
+
+        
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    
+
+
+    loadAsync("\/js\/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+
+</body>
+</html>

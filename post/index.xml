@@ -6,7 +6,16 @@
     <description>Recent content in Posts on Everyday Statistics</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 16 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 22 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bayesian Modeling with NCAA Field Goal Attempts and Percentages</title>
+      <link>https://SamLeeBYU.github.io/2023/12/22/bayesian-modeling-ncaa-field-goals/</link>
+      <pubDate>Fri, 22 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/2023/12/22/bayesian-modeling-ncaa-field-goals/</guid>
+      <description>Introduction The NCAA Men’s Basketball tournament has been a well-known and highly anticipated sporting event since 1939 for not only the athletic aspects of the game, but also for the prediction of winning brackets. In the realm of sports analytics and statistical modeling, the question of replicating tournament outcomes has become an increasingly intriguing challenge. Although there are various covariates that contribute to whether a team wins or lose, we aim to utilize the Field Goal Attempts (FGA) data from the 2022 regular season to replicate the 2023 results of the tournament.</description>
+    </item>
+    
     <item>
       <title>University Traffic Fines: Trends in Weather &amp; Air Quality - EDA</title>
       <link>https://SamLeeBYU.github.io/2023/12/16/byu-traffic-citations-eda/</link>

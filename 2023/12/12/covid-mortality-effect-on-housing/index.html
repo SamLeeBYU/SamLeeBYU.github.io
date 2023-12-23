@@ -281,7 +281,7 @@ HPI that’s been adjusted for inflation using 2000 as the base year.</p>
 The housing prices data. (See <a href="#a1">A.1</a> for the selection process for
 the number of lag variables).</p>
 <p>Merging the housing prices data set with the mortality data set yields
-the final data set for the econometric analysis: The response variable $\text{HPI}<em>{2021}$ will be measured on the independent metric of interest, $\text{Mortality Rate}$ for each county, and this will be controlled for using a series of state dummy variables and the $6$ lag variables on $\text{HPI}</em>{2021}$. This data set yielded a sample size = 3113 counties with $n = 50$ states.</p>
+the final data set for the econometric analysis: The response variable $\text{HPI}_{2021}$ will be measured on the independent metric of interest, $\text{Mortality Rate}$ for each county, and this will be controlled for using a series of state dummy variables and the $6$ lag variables on $\text{HPI}_{2021}$. This data set yielded a sample size = 3113 counties with $n = 50$ states.</p>
 <h4 id="exploratory-data-analysis">Exploratory Data Analysis</h4>
 <p>Summary Statistics of Key Numeric Variables:</p>
 <table>
@@ -377,19 +377,13 @@ mortality rate and $\text{HPI}_{2021}$.</p>
   <img src="/img/covid/memo_files/figure-commonmark/unnamed-chunk-4-1.png" alt="">
 
 </p>
-<p>This demonstrates the variability between states’ $\text{HPI}<em>{2021}$
-and COVID-19 mortality rates. The fact that the proportion of
-$\text{HPI}</em>{2021}$ and mortality rate varies drastically depending on
-state indicates that both mortality and $\text{HPI}_{2021}$ may depend
-on the state and state-specific policies. In econometric terms, we need
-to include state-specific fixed effects in our econometric model in
-order to further satisfy $E[\epsilon|X]=0$</p>
+<p>This demonstrates the variability between states’ $\text{HPI}_{2021}$ and COVID-19 mortality rates. The fact that the proportion of $\text{HPI}_{2021}$ and mortality rate varies drastically depending on
+state indicates that both mortality and $\text{HPI}_{2021}$ may depend on the state and state-specific policies. In econometric terms, we need to include state-specific fixed effects in our econometric model in order to further satisfy $E[\epsilon|X]=0$</p>
 <h2 id="econometric-model">Econometric Model</h2>
 <p>It is hypothesized that there are unobserved effects in the data that
 are dependent upon each state ($s$) such that for each county ($c$) that
 we wish to estimate the COVID-19 mortality effect on per-county housing
-prices in 2021 ($\text{HPI}<em>{2021}$), the error term ($\epsilon$) can
-thus be represented by $\epsilon</em>{sc}=\alpha_s+\eta_{st}$. We will
+prices in 2021 ($\text{HPI}_{2021}$), the error term ($\epsilon$) can thus be represented by $\epsilon_{sc}=\alpha_s+\eta_{st}$. We will
 remedy this issue by using a fixed effects model by including $n-1$
 dummy variables for $n$ states.</p>
 <p>Furthermore, due to the lagged effects in the model, the theoretical
@@ -401,8 +395,7 @@ nature of time-series dependent data. Excluding the lags from model will
 likely lead to a biased coefficient on the estimated effect for
 mortality, as it would have encapsulated the effects of the lagged
 variables in $\eta_{sc}$ which would have otherwise been controlled for
-in the model. Since $\text{HPI}<em>{2021}$ is significantly dependent upon
-$\text{HPI}</em>{2021-1},&hellip;,\text{HPI}_{2021-P}$ (as shown in <a href="#a1">A.1</a>),
+in the model Since $\text{HPI}_{2021}$ is significantly dependent upon $\text{HPI}_{2021-1},&hellip;,\text{HPI}_{2021-P}$ (as shown in <a href="#a1">A.1</a>),
 where $P$ is the number of lags in the model (in this analysis we let
 $P=6$), then since $\delta_p &gt; 0 \quad \forall p \in {1,&hellip;,P}$, then
 the coefficient for mortality will be <strong>overestimated</strong> <em>if</em> the lag
@@ -410,7 +403,10 @@ variables are excluded from the model.</p>
 <p>Hence, for year $t$, state $s$, and county $c$, we wish to estimate for
 $n$ # of states,</p>
 <ol>
-<li>$\text{HPI}<em>{sct} = \beta_0+\beta_1\text{Mortality}</em>{sct-1}+\sum_{j=1}^{n-1}\beta_{j+1}I(\text{State}<em>s=j)+\sum</em>{p=1}^{6}\delta_{p}\text{HPI}<em>{sct-p}+\eta</em>{sct}$</li>
+<li>
+<p>$\text{HPI}_{sct} = \beta_0+\beta_1 + \text{Mortality}_{sct-1} + \sum_{j=1}^{n-1} + \beta_{j+1}I(\text{State}_s=j) +$</p>
+<p>$\sum_{p=1}^{6}\delta_{p} + \text{HPI}_{sct-p} + \eta_{sct}$</p>
+</li>
 </ol>
 <p>Where $\beta_1$ is the parameter of interest. Since we are only
 interested in the effect that 2020 COVID-19 mortality had on 2021
@@ -420,9 +416,8 @@ cross-sectional data set</p>
 will be full rank and thus invertible. Since we control for state
 effects using a fixed effects model we further satisfy the assumption
 that $E[\eta_{sc}|X]=0$. This assumption is more reasonably satisfied
-with the inclusion of lagged effects on $\text{HPI}<em>{sct=2021}$. Since
-these lagged effects significantly affect the main response,
-$\text{HPI}</em>{sct=2021}$, including them in the model will isolate the
+with the inclusion of lagged effects on $\text{HPI}_{sct=2021}$. Since these lagged effects significantly affect the main response,
+$\text{HPI}_{sct=2021}$, including them in the model will isolate the
 estimated causal effect for $\beta_1$.</p>
 <h2 id="findings">Findings</h2>
 <p>Using OLS to estimate $\beta_1$, we arrived at the following estimate
@@ -492,8 +487,7 @@ in population.</p>
 <h2 id="appendix">Appendix</h2>
 <h4 id="a1">A.1</h4>
 <p>I determined a sufficient # of lags ($P$) for the lagged effects on
-$\text{HPI}<em>{sct=2021}$ by regressing $\text{HPI}</em>{sct=2021}$ on
-$\text{HPI}<em>{sct-1},&hellip;,\text{HPI}</em>{sct-P}$ until the last the
+$\text{HPI}_{sct=2021}$ by regressing $\text{HPI}_{sct=2021}$ on $\text{HPI}_{sct-1},&hellip;,\text{HPI}_{sct-P}$ until the last the
 regression coefficient, $\delta_{P}$, was no longer significant for a
 chosen level of significance, $\alpha$. Let $\alpha=0.1$</p>
 <p>
@@ -518,7 +512,7 @@ file</a>)</p>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left">(Intercept)</td>
+<td style="text-align:left">$\beta_0$</td>
 <td style="text-align:right">9.08027</td>
 <td style="text-align:right">0.6515312</td>
 <td style="text-align:right">13.93682</td>
@@ -1094,6 +1088,8 @@ file</a>)</p>
                         
                         
                         
+                        
+                        
                         <a href="/tags/data-science" title="data-science">
                             data-science
                         </a>
@@ -1108,9 +1104,13 @@ file</a>)</p>
                         
                         
                         
+                        
+                        
                         <a href="/tags/python" title="python">
                             python
                         </a>
+                        
+                        
                         
                         
                         
