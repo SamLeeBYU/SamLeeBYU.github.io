@@ -6,7 +6,34 @@
     <description>Recent content in Tags on Everyday Statistics</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 29 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://SamLeeBYU.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Data Science</title>
+      <link>https://SamLeeBYU.github.io/tags/data-science/</link>
+      <pubDate>Fri, 29 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/tags/data-science/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>NLP</title>
+      <link>https://SamLeeBYU.github.io/tags/nlp/</link>
+      <pubDate>Fri, 29 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/tags/nlp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>python</title>
+      <link>https://SamLeeBYU.github.io/tags/python/</link>
+      <pubDate>Fri, 29 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://SamLeeBYU.github.io/tags/python/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Bayesian Statistics</title>
       <link>https://SamLeeBYU.github.io/tags/bayesian-statistics/</link>
@@ -35,29 +62,11 @@
     </item>
     
     <item>
-      <title>Data Science</title>
-      <link>https://SamLeeBYU.github.io/tags/data-science/</link>
-      <pubDate>Sat, 16 Dec 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://SamLeeBYU.github.io/tags/data-science/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>EDA</title>
       <link>https://SamLeeBYU.github.io/tags/eda/</link>
       <pubDate>Sat, 16 Dec 2023 00:00:00 +0000</pubDate>
       
       <guid>https://SamLeeBYU.github.io/tags/eda/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>python</title>
-      <link>https://SamLeeBYU.github.io/tags/python/</link>
-      <pubDate>Sat, 16 Dec 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://SamLeeBYU.github.io/tags/python/</guid>
       <description></description>
     </item>
     
